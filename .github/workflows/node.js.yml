@@ -30,12 +30,18 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # Example deployment: GitHub Pages with a unique preview URL per PR
+      - name: Deploy preview (e.g., to GitHub Pages)
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: './dist'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: pr-preview/pr-${{ github.event.pull_request.number }}
+      # Comment PR with preview link
+      - name: Comment PR with Preview URL
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview-link
+          message: |
+            :rocket: Preview deployed!
+            :link: [View Preview](https://your-user.github.io/your-repo/pr-preview/pr-${{ github.event.pull_request.number }})
