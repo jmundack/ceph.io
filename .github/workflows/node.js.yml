@@ -39,9 +39,8 @@ jobs:
           destination_dir: pr-preview/pr-${{ github.event.pull_request.number }}
       # Comment PR with preview link
       - name: Comment PR with Preview URL
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
-          header: preview-link
           message: |
             :rocket: Preview deployed!
             :link: [View Preview](https://your-user.github.io/your-repo/pr-preview/pr-${{ github.event.pull_request.number }})
