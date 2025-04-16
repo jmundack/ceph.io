@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="en" dir="ltr" class="no-js"><head prefix="og: http://ogp.me/ns"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="ie=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f1726c"><script>!function(e){e.className=e.className.replace(/\bno-js/,"js")}(document.documentElement)</script><title>Ceph.io — Ceph Object Storage Multisite Replication Series. Part Seven</title><meta name="description" content="Ceph is an open source distributed storage system designed to evolve with data."><link rel="alternate" hreflang="en" href="https://ceph.io/en/news/blog/2025/rgw-multisite-replication_part7/"><link rel="canonical" href="https://ceph.io/en/news/blog/2025/rgw-multisite-replication_part7/"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" media="print" onload='this.onload=null,this.removeAttribute("media")' href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"></noscript><link rel="icon" type="image/png" href="/assets/favicons/favicon-16x16.png" sizes="16x16"><link rel="icon" type="image/png" href="/assets/favicons/favicon-32x32.png" sizes="32x32"><link rel="icon" type="image/png" href="/assets/favicons/favicon-96x96.png" sizes="96x96"><link rel="icon" type="image/png" href="/assets/favicons/android-chrome-192x192.png" sizes="192x192"><link rel="apple-touch-icon" sizes="57x57" href="/assets/favicons/apple-touch-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/favicons/apple-touch-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/favicons/apple-touch-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/favicons/apple-touch-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/favicons/apple-touch-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/favicons/apple-touch-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/favicons/apple-touch-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/favicons/apple-touch-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon-180x180.png"><link rel="mask-icon" href="/assets/favicons/safari-pinned-tab.svg" color="#f0424d"><link rel="manifest" href="/assets/favicons/manifest.json"><meta name="robots" content="noindex, nofollow"><meta property="og:locale" content="en"><meta property="og:title" content="Ceph Object Storage Multisite Replication Series. Part Seven - Ceph"><meta property="og:url" content="https://ceph.io/en/news/blog/2025/rgw-multisite-replication_part7/"><meta property="og:type" content="website"><meta property="og:image" content="https://ceph.io/assets/favicons/logo-meta-share.png"><meta property="og:site_name" content="Ceph"><meta name="twitter:card" content="summary"><meta name="twitter:site" content="@ceph"><meta name="twitter:title" content="Ceph Object Storage Multisite Replication Series. Part Seven - Ceph"><meta name="twitter:url" content="https://ceph.io/en/news/blog/2025/rgw-multisite-replication_part7/"><meta name="twitter:image" content="https://ceph.io/assets/favicons/logo-meta-share.png"><script>var _paq=window._paq=window._paq||[];_paq.push(["setCookieDomain","*.ceph.io"]),_paq.push(["trackPageView"]),_paq.push(["enableLinkTracking"]),function(){_paq.push(["setTrackerUrl","https://ceph.matomo.cloud/matomo.php"]),_paq.push(["setSiteId","1"]);var e=document,a=e.createElement("script"),e=e.getElementsByTagName("script")[0];a.async=!0,a.src="//cdn.matomo.cloud/ceph.matomo.cloud/matomo.js",e.parentNode.insertBefore(a,e)}()</script><noscript><p><img src="https://ceph.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0" alt=""></p></noscript></head><body class="blog-post"><div class="scroll-offset" data-scroll-offset></div><header class="site-header" data-site-header><div class="flex flex--align-center flex--justify-between wrapper"><a class="site-header__logo" href="/en/"><svg xmlns="http://www.w3.org/2000/svg" width="154" height="42" viewBox="0 0 154 42" aria-hidden="true" focusable="false"><g fill="#f0424d" class="logo-ceph__icon"><path d="M35 38c-1.4-.8-2.3-1.7-2.5-2.7s.2-2 1.3-3.3A16.2 16.2 0 0021.6 5.2h-.1A16.2 16.2 0 009.2 32c1.1 1.3 1.5 2.3 1.4 3.2S9.5 37.2 8 38a22.8 22.8 0 01-5.7-7.2A21.3 21.3 0 010 21.4 21.4 21.4 0 0121.5 0h.1A21.4 21.4 0 0143 21.4a21.6 21.6 0 01-.6 4.9 21 21 0 01-1.6 4.5 22.7 22.7 0 01-5.7 7.2"/><path d="M27.2 42a8 8 0 01-2-2 8.7 8.7 0 01-1.6-5.3 11.8 11.8 0 01.9-4.2 12 12 0 012.3-3.7l.2-.2a10.3 10.3 0 001-1.4 7 7 0 001-2 7.5 7.5 0 00-6.3-9.2 7.3 7.3 0 00-1.1 0h-.1a7.4 7.4 0 00-4 1 7.5 7.5 0 00-2.2 2 7.5 7.5 0 00-1.2 6.2 7.2 7.2 0 00.8 2 9.7 9.7 0 001.1 1.4l.2.3a11.9 11.9 0 012.3 3.6 11.8 11.8 0 011 4.2 8.8 8.8 0 01-1.8 5.4 8 8 0 01-1.9 1.9l-1.2-.4A21.3 21.3 0 0111 40a6 6 0 003.2-5.3 6.4 6.4 0 00-1.7-4.2l-.3-.4-.9-1a12.8 12.8 0 01-.2-15 13 13 0 013.7-3.5 12.8 12.8 0 015-1.8 13.3 13.3 0 011.7-.2h.2a13.4 13.4 0 011.8.2 12.8 12.8 0 014.9 1.8A13 13 0 0132 14a12.7 12.7 0 01-.2 15l-.9 1-.3.4a6.5 6.5 0 00-1.7 4.3 6 6 0 003.1 5.4 21.4 21.4 0 01-3.6 1.5l-1.2.4"/><path d="M21.5 25.8a4.2 4.2 0 114.2-4.2 4.2 4.2 0 01-4.2 4.2"/></g><g fill="#3b434a" class="logo-ceph__text"><path d="M75.6 26.4c0 5.5-.5 7-1.8 8.4-.8.8-2 1.3-4.3 1.3h-8.2c-2.6 0-4.2-.4-5.3-1.5-1.7-1.8-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1-1 2.7-1.5 5.3-1.5h8c2.5 0 3.6.5 4.4 1.3 1.3 1.3 1.8 3 1.8 8h-5c-.1-3.5-.3-4-.6-4.3s-.6-.5-1.8-.5H62c-1.5 0-2 .1-2.3.5-.5.5-.7 1.5-.7 8.3s.2 7.7.7 8.2c.4.4.8.5 2.3.5h6.2c1.1 0 1.6 0 2-.4s.5-1.4.5-4.7h5M84.3 20.4h12.2c0-4.5-.3-5.5-.8-6-.3-.3-.7-.5-2.3-.5h-6c-1.6 0-2 .2-2.4.6s-.6 1.3-.7 5.9zm0 4c0 5.3.4 6.3.8 6.7s.7.5 2.2.5h7c1 0 1.4-.2 1.7-.5s.4-1 .5-3.3h5c0 4.2-.4 5.6-1.8 7-.8.8-2 1.3-4.3 1.3h-8.7c-2.6 0-4.2-.4-5.3-1.5-1.7-1.7-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1.1-1 2.7-1.5 5.3-1.5H94c2.6 0 4.3.5 5.3 1.4 1.7 1.8 2.2 3.8 2.2 11.6V24c0 .4-.1.6-.6.6H84.3M121.6 31c-.4.4-1 .6-2.7.6H115a10.1 10.1 0 01-4.8-1.5l-.3-.1V15.5a10.7 10.7 0 015-1.5h4c1.6 0 2.2.2 2.7.6.7.8 1 2.2 1 8.2s-.2 7.4-1 8.1zm-1.5-21.6h-3.6c-2.2 0-3.3.5-6.6 3.3V9.4h-5.2V42h5.2v-9c3.3 2.7 4.4 3.2 6.6 3.2h3.6c2.9 0 4.3-.5 5.5-1.6 1.4-1.5 2-3.5 2-11.8s-.6-10.3-2-11.8c-1.2-1.1-2.6-1.6-5.5-1.6M152.4 11c-1-1-2.3-1.6-4.6-1.6h-4.2c-2.2 0-3.3.5-6.7 3.3V2.5a18.8 18.8 0 00-5-2v35.6h5V15.5l1.1-.5a9.1 9.1 0 014-1h3.4c1.7 0 2.2.2 2.8.7a3.4 3.4 0 01.6 2.6V36h5.2V17c0-3.7-.6-5-1.6-6"/></g></svg> <span class="visually-hidden">Ceph.io Homepage</span> </a><a class="site-header__menu-open" href="#menu" data-menu-open><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" fill-rule="evenodd" stroke="#0a0c38" stroke-linecap="square" stroke-width="2"><path d="M1 12h22M1 5h22M12 19h11"/></g></svg> <span class="visually-hidden">Open menu</span></a><div class="site-header__menu" id="menu" data-menu><a class="site-header__menu-close" href="#menu-toggle" data-menu-close><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="square" stroke-width="2"><path d="M16 8l-8 8M16 16L8 8"/></g></svg> <span class="visually-hidden">Close menu</span></a><div class="site-header__overflow"><nav aria-label="main"><ul class="nav-primary"><li><a href="/en/discover/">Discover</a></li><li><a href="/en/users/">Users</a></li><li><a href="/en/developers/">Developers</a></li><li><a href="/en/community/">Community</a></li><li><a href="/en/news/" aria-current="page">News</a></li><li><a href="/en/foundation/">Foundation</a></li></ul></nav></div></div></div></header><main id="main"><div class="wrapper"><nav aria-label="secondary"><ul class="nav-secondary" data-nav-secondary><li class="nav-secondary__wrapper"><a class="nav-secondary__top" href="/en/news/" data-nav-secondary-toggle>News</a><ul class="nav-secondary__sub" data-nav-secondary-sub><li><a href="/en/news/blog/" aria-current="page">Ceph Blog</a></li><li><a href="/en/news/publications/">Publications</a></li><li><a href="/en/news/contribute/">Contribute Content</a></li><li><a href="/en/news/crimson/">Crimson Project</a></li></ul></li></ul></nav><section class="section"><div class="grid lg:grid--cols-auto-72"><div><h1 class="h1">Ceph Object Storage Multisite Replication Series. Part Seven</h1><div class="flex flex--gap-8 flex--pipe mb-7 lg:mb-9 xl:mb-10"><time class="mb-0 p-sm" datetime="Fri Dec 27 2024 00:00:00 GMT+0000 (Coordinated Universal Time)">Dec 27, 2024</time> <span class="mb-0 p-sm text-semibold">Daniel Parkes, Anthony D&#39;Atri (IBM)</span></div></div></div><div class="grid lg:grid--cols-auto-72 to-lg:grid--gap-0 lg:grid--gap-16 xl:grid--gap-20"><div><div class="intro-para richtext"><h2 id="ibm-storage-ceph-object-storage-multisite-replication-series-part-seven%3A-the-archive-zone">IBM Storage Ceph Object Storage Multisite Replication Series Part Seven: the Archive Zone <a class="link-anchor" href="#ibm-storage-ceph-object-storage-multisite-replication-series-part-seven%3A-the-archive-zone">¶</a></h2><p>In part seven of this Ceph Multisite series, we introduce Archive Zone concepts and architecture. We will share a hands-on example of attaching an archive zone to a running Ceph Object Multisite cluster.</p><h3 id="introduction">Introduction <a class="link-anchor" href="#introduction">¶</a></h3><p>Archive your critical object data residing on Ceph using the Archive Zone feature.</p><p>The Archive Zone uses the multisite replication and S3 object versioning features. In this way, it will keep all versions of each object available even when deleted from the production site.</p><p>With the archive zone, you can have object immutability without the overhead of enabling object versioning in your production zones, saving the space that the replicas of the versioned S3 objects would consume in non-archive zones, which may well deployed on faster yet more expensive storage devices.</p><p><img src="images/i7-1.png" alt=""></p><p>This can protect your data against logical or physical errors. It can save users from logical failures, for example, accidental deletion of a bucket in a production zone. It can protect your data from massive hardware failures or complete production site failure.</p><p>As the archive zone provides an immutable copy of your production data, it can serve as a key component of a ransomware protection strategy.</p><p>You can control the storage space usage of an archive zone through lifecycle policies of the production buckets, where you can define the number of versions you would like to keep for an object.</p><p>We can select on a per-bucket basis the data to send/replicate to the archive zone. If for example, we have pre-production buckets that don’t have any valuable data we can disable the archive zone replication on those buckets.</p><h4 id="archive-zone-architecture">Archive Zone Architecture <a class="link-anchor" href="#archive-zone-architecture">¶</a></h4><p>The archive zone as a zone in a multisite zonegroup can have a different setup than production zones, including its own set of pools and replication rules.</p><p>Ceph archive zones have the following main characteristics:</p><ul><li>Versioning is enabled in all buckets in the RGW archive zone</li><li>Every time a user uploads a new object, that object is asynchronously replicated to the archive zone.</li><li>A new object version is generated in the archive zone for each object modification in the production zone.</li><li>We provide immutability because so that if an object is deleted in the production zone, the object is preserved intact in the archive zone. But it is essential to note that the archive zone does not lock the objects it ingests. The objects are deletable in the archive zone if the user has access to the S3 endpoint with the appropriate permissions.</li></ul><p>The archive zone S3 endpoint for data recovery can be configured on a private network that is only accessible to the operations administrator team. If recovery of a production object is required, the request would need to go through that team.</p><p>We can add an archive zone to a Ceph Object Storage single site configuration. With this configuration, we can attach the archive zone to the running single zone, single Ceph cluster, as depicted in the following figure:</p><p><img src="images/i7-2.png" alt=""></p><p>Or we can attach our archive zone to a Ceph Object Storage multisite configuration. If, for example, we haved a realm/zonegroup replicating between two zones, we can add a third zone representing a third Ceph cluster. This is the architecture that we are going to use in our example, building on our work in the previous posts where we setup an Ceph Multisite replication cluster. We are now going to add a third zone to our zonegroup configured as an immutable archive zone. An example of this architecture is shown in the following diagram.</p><p><img src="images/i7-3.png" alt=""></p><p>Let’s start with our archive zone configuration. We have a freshly deployed third Ceph cluster running on four nodes named <code>ceph-node-[08-11].cephlab.com</code>.</p><pre><code>[root@ceph-node-08 ~]# ceph orch host ls
+HOST                      ADDR             LABELS                      STATUS
+ceph-node-08.cephlab.com  ceph-node-08     _admin,osd,mon,mgr,rgwsync          
+ceph-node-09.cephlab.com  192.168.122.135  osd,mon,mgr,rgwsync
+ceph-node-10.cephlab.com  192.168.122.204  osd,mon,mgr,rgw          
+ceph-node-11.cephlab.com  192.168.122.194  osd,rgw              
+4 hosts in cluster
+</code></pre><p>The archive zone is not currently configurable using the Manager <code>rgw</code> module, so we must run <code>radosgw-admin</code> commands to configure it. First, we pull the information from our already-deployed <code>multisite</code> realm. We use the zonegroup endpoint and the access and secret keys for our RGW multisite synchronization user. If you need to check the details of your sync user, you can run: <code>radosgw-admin user info --uid sysuser-multisite</code>.</p><pre><code>[root@ceph-node-08]# radosgw-admin realm pull --rgw-realm=multisite  --url=http://ceph-node-01.cephlab.com:8000 --access-key=X1BLKQE3VJ1QQ27ORQP4 --secret=kEam3Fq5Wgf24Ns1PZXQPdqb5CL3GlsAwpKJqRjg --default
+
+[root@ceph-node-08]# radosgw-admin period pull --url=http://ceph-node-01.cephlab.com:8000 --access-key=X1BLKQE3VJ1QQ27ORQP4 --secret=kEam3Fq5Wgf24Ns1PZXQPdqb5CL3GlsAwpKJqRjg
+</code></pre><p>Once we have pulled the realm and the period locally, our third cluster has all required realm and zonegroup configuration. If we run <code>radosgw-admin zonegroup get</code>, we will see all details of our current multisite setup. Moving forward we will configure a new zone named <code>archive</code>. We provide the list of endpoints, which are the dedicated sync RGWs that we are going to deploy on our new cluster along with the access and secret keys for the sync user, and last but not least the tier type. This flag is the one that defines that this new zone is going to be created as an archive zone.</p><pre><code>[root@ceph-node-08]# radosgw-admin zone create --rgw-zone=archive --rgw-zonegroup=multizg --endpoints=http://ceph-node-08.cephlab.com:8000,http://ceph-node-09.cephlab.com:8000 --access-key=X1BLKQE3VJ1QQ27ORQP4 --secret=kEam3Fq5Wgf24Ns1PZXQPdqb5CL3GlsAwpKJqRjg --tier-type=archive --default
+</code></pre><p>With the new zone in place, we can update the period to push our new zone config to the rest of the zones in the zone group</p><pre><code>[root@ceph-node-08]# radosgw-admin period update --commit
+</code></pre><p>Using cephadm, we deploy two RGW services that will replicate data from production zones. In this example, we use the cephadm RGW CLI instead of a spec file to showcase a different way to configure your Ceph services with cephadm. Both new RGWs that we spin up will belong to the archive zone. Using the <code>--placement</code> argument, we configure two RGW services that will run on <code>ceph-node-08</code> and <code>ceph-node-09</code>, the same nodes we configured as our zone replication endpoints via our previous commands.</p><pre><code>[root@ceph-node-08 ~]# ceph orch apply rgw multi.archive --realm=multisite --zone=archive --placement=&quot;2 ceph-node-08.cephlab.com ceph-node-09.cephlab.com&quot; --port=8000
+
+Scheduled rgw.multi.archive update...
+</code></pre><p>We can check the RGWs have started correctly:</p><pre><code>[root@ceph-node-08]# ceph orch ps | grep archive
+[root@ceph-node-08]# ceph orch ps | grep archive
+rgw.multi.archive.ceph-node-08.hratsi              ceph-node-08.cephlab.com  *:8000                running (10m)    10m ago  10m    80.5M        -  18.2.0-131.el9cp  463bf5538482  44608611b391
+rgw.multi.archive.ceph-node-09.lubyaa              ceph-node-09.cephlab.com  *:8000                running (10m)    10m ago  10m    80.7M        -  18.2.0-131.el9cp  463bf5538482  d39dbc9b3351
+</code></pre><p>Once the new RGWs spin up, the new pools for the archive zone are created for us. Remember if we want to use erasure coding for our RGW data pool, this would be the moment to create it before we enable replication from production to the archive zone. The data pool is otherwise created using the default data protection strategy replication with three copies aka <em>R3</em>.</p><pre><code>[root@ceph-node-08]# ceph osd lspools | grep archive
+8 archive.rgw.log
+9 archive.rgw.control
+10 archive.rgw.meta
+11 archive.rgw.buckets.index
+</code></pre><p>When we now check the sync status from one of our archive zone nodes, we see that there is currently no replication configured. This is because we are using <code>sync policy</code>, and there is no zonegroup sync policy configured for the archive zone:</p><pre><code>[root@ceph-node-08]# radosgw-admin sync status --rgw-zone=archive
+          realm beeea955-8341-41cc-a046-46de2d5ddeb9 (multisite)
+      zonegroup 2761ad42-fd71-4170-87c6-74c20dd1e334 (multizg)
+           zone bac4e4d7-c568-4676-a64c-f375014620ae (archive)
+   current time 2024-02-12T17:19:24Z
+zonegroup features enabled: resharding
+                   disabled: compress-encrypted
+  metadata sync syncing
+                full sync: 0/64 shards
+                incremental sync: 64/64 shards
+                metadata is caught up with master
+      data sync source: 66df8c0a-c67d-4bd7-9975-bc02a549f13e (zone1)
+                        not syncing from zone
+                source: 7b9273a9-eb59-413d-a465-3029664c73d7 (zone2)
+                        not syncing from zone
+</code></pre><p>Now we want to start replicating data to our archive zone, so we need to create a zone group policy. Rrecall from our previous post that we have a zonegroup policy configured to <code>allow</code> replication at the zonegroup level, and then we configured replication on a per-bucket basis.</p><p>In this case, we will take a different approach with the archive zone. We are going to configure unidirectional sync at the zonegroup level, and set the policy status to <code>enabled</code> so by default, all buckets in the zone <code>zone1</code> will be replicated to the <code>archive</code> archive zone.</p><p>As before, to create a sync policy we need a group, a flow, and a pipe. Let's create a new zonegroup group policy called <code>grouparchive</code>:</p><pre><code>[root@ceph-node-00 ~]#  radosgw-admin sync group create --group-id=grouparchive --status=enabled 
+</code></pre><p>We are creating a “directional” (unidirectional) flow that will replicate all data from <code>zone1</code> to the <code>archive</code> zone:</p><pre><code>[root@ceph-node-00 ~]#  radosgw-admin sync group flow create --group-id=grouparchive --flow-id=flow-archive --flow-type=directional --source-zone=zone1 --dest-zone=archive
+</code></pre><p>Finally, we create a pipe where we use a <code>*</code> wildcard for all fields to avoid typing the full zone names. The <code>*</code> represents all zones configured in the flow. We could have instead entered <code>zone1</code> and <code>archive</code> in the zone fields. The use of wildcards here helps avoid typos and generalizes the procedure.</p><pre><code>[root@ceph-node-00 ~]#   radosgw-admin sync group pipe create --group-id=grouparchive  --pipe-id=pipe-archive --source-zones='*'  --source-bucket='*' --dest-zones='*' --dest-bucket='*'
+</code></pre><p>Zonegroup sync policies always need to be committed:</p><pre><code>[root@ceph-node-00 ~]# radosgw-admin period update --commit
+</code></pre><p>When we check the configured zonegroup policies, we now see two groups, <code>group1</code> from our previous blog posts and <code>grouparchive</code> that we created and configured just now:</p><pre><code>[root@ceph-node-00 ~]# radosgw-admin sync group get
+[
+    {
+        &quot;key&quot;: &quot;group1&quot;,
+        &quot;val&quot;: {
+            &quot;id&quot;: &quot;group1&quot;,
+            &quot;data_flow&quot;: {
+                &quot;symmetrical&quot;: [
+                    {
+                        &quot;id&quot;: &quot;flow-mirror&quot;,
+                        &quot;zones&quot;: [
+                            &quot;zone1&quot;,
+                            &quot;zone2&quot;
+                        ]
+                    }
+                ]
+            },
+            &quot;pipes&quot;: [
+                {
+                    &quot;id&quot;: &quot;pipe1&quot;,
+                    &quot;source&quot;: {
+                        &quot;bucket&quot;: &quot;*&quot;,
+                        &quot;zones&quot;: [
+                            &quot;*&quot;
+                        ]
+                    },
+                    &quot;dest&quot;: {
+                        &quot;bucket&quot;: &quot;*&quot;,
+                        &quot;zones&quot;: [
+                            &quot;*&quot;
+                        ]
+                    },
+                    &quot;params&quot;: {
+                        &quot;source&quot;: {
+                            &quot;filter&quot;: {
+                                &quot;tags&quot;: []
+                            }
+                        },
+                        &quot;dest&quot;: {},
+                        &quot;priority&quot;: 0,
+                        &quot;mode&quot;: &quot;system&quot;,
+                        &quot;user&quot;: &quot;&quot;
+                    }
+                }
+            ],
+            &quot;status&quot;: &quot;allowed&quot;
+        }
+    },
+    {
+        &quot;key&quot;: &quot;grouparchive&quot;,
+        &quot;val&quot;: {
+            &quot;id&quot;: &quot;grouparchive&quot;,
+            &quot;data_flow&quot;: {
+                &quot;directional&quot;: [
+                    {
+                        &quot;source_zone&quot;: &quot;zone1&quot;,
+                        &quot;dest_zone&quot;: &quot;archive&quot;
+                    }
+                ]
+            },
+            &quot;pipes&quot;: [
+                {
+                    &quot;id&quot;: &quot;pipe-archive&quot;,
+                    &quot;source&quot;: {
+                        &quot;bucket&quot;: &quot;*&quot;,
+                        &quot;zones&quot;: [
+                            &quot;*&quot;
+                        ]
+                    },
+                    &quot;dest&quot;: {
+                        &quot;bucket&quot;: &quot;*&quot;,
+                        &quot;zones&quot;: [
+                            &quot;*&quot;
+
+                        ]
+                    },
+                    &quot;params&quot;: {
+                        &quot;source&quot;: {
+                            &quot;filter&quot;: {
+                                &quot;tags&quot;: []
+                            }
+                        },
+                        &quot;dest&quot;: {},
+                        &quot;priority&quot;: 0,
+                        &quot;mode&quot;: &quot;system&quot;,
+                        &quot;user&quot;: &quot;&quot;
+                    }
+                }
+            ],
+            &quot;status&quot;: &quot;enabled&quot;
+        }
+    }
+]
+</code></pre><p>When we check any bucket from <code>zone1</code> (here we choose the <code>unidrectional</code> bucket, but it could be any other; we see that we now have a new sync policy configured with the ID <code>pipe-archive</code>. This comes from the zonegroup policy we just applied because this is unidirectional. We run the command from <code>ceph-node-00</code> in <code>zone1</code>. We see only the <code>dests</code> field populated, with the <code>source</code> being <code>zone1</code> and the destination being the <code>archive</code> zone.</p><pre><code>[root@ceph-node-00 ~]# radosgw-admin sync info --bucket unidirectional
+{
+    &quot;sources&quot;: [],
+    &quot;dests&quot;: [
+        {
+            &quot;id&quot;: &quot;pipe-archive&quot;,
+            &quot;source&quot;: {
+                &quot;zone&quot;: &quot;zone1&quot;,
+                &quot;bucket&quot;: &quot;unidirectional:66df8c0a-c67d-4bd7-9975-bc02a549f13e.36430.1&quot;
+            },
+            &quot;dest&quot;: {
+                &quot;zone&quot;: &quot;archive&quot;,
+                &quot;bucket&quot;: &quot;unidirectional:66df8c0a-c67d-4bd7-9975-bc02a549f13e.36430.1&quot;
+            },
+            &quot;params&quot;: {
+                &quot;source&quot;: {
+                    &quot;filter&quot;: {
+                        &quot;tags&quot;: []
+                    }
+                },
+                &quot;dest&quot;: {},
+                &quot;priority&quot;: 0,
+                &quot;mode&quot;: &quot;system&quot;,
+                &quot;user&quot;: &quot;&quot;
+            }
+        },
+        {
+            &quot;id&quot;: &quot;test-pipe1&quot;,
+            &quot;source&quot;: {
+                &quot;zone&quot;: &quot;zone1&quot;,
+                &quot;bucket&quot;: &quot;unidirectional:66df8c0a-c67d-4bd7-9975-bc02a549f13e.36430.1&quot;
+            },
+            &quot;dest&quot;: {
+                &quot;zone&quot;: &quot;zone2&quot;,
+                &quot;bucket&quot;: &quot;unidirectional:66df8c0a-c67d-4bd7-9975-bc02a549f13e.36430.1&quot;
+            },
+            &quot;params&quot;: {
+                &quot;source&quot;: {
+                    &quot;filter&quot;: {
+                        &quot;tags&quot;: []
+                    }
+                },
+                &quot;dest&quot;: {},
+                &quot;priority&quot;: 0,
+                &quot;mode&quot;: &quot;system&quot;,
+                &quot;user&quot;: &quot;user1&quot;
+            }
+        },
+</code></pre><p>When we run the <code>radosgw-admin sync status</code> command again, we see that the status for <code>zone1</code> has changed from <code>not syncing from zone</code> to synchronization enabled and <code>data is caught up with source</code>.</p><pre><code> [root@ceph-node-08 ~]#  radosgw-admin sync status --rgw-zone=archive
+          realm beeea955-8341-41cc-a046-46de2d5ddeb9 (multisite)
+      zonegroup 2761ad42-fd71-4170-87c6-74c20dd1e334 (multizg)
+           zone bac4e4d7-c568-4676-a64c-f375014620ae (archive)
+   current time 2024-02-12T17:09:26Z
+zonegroup features enabled: resharding
+                   disabled: compress-encrypted
+  metadata sync syncing
+                full sync: 0/64 shards
+                incremental sync: 64/64 shards
+                metadata is caught up with master
+      data sync source: 66df8c0a-c67d-4bd7-9975-bc02a549f13e (zone1)
+                        syncing
+                        full sync: 0/128 shards
+                        incremental sync: 128/128 shards
+                        data is caught up with source
+                source: 7b9273a9-eb59-413d-a465-3029664c73d7 (zone2)
+                        not syncing from zone
+
+</code></pre><p>Now all data ingested into <code>zone1</code> will be replicated to the <code>archive</code> zone. Withh this configuration only have to set a uniderectional flow from <code>zone1 to</code>archive<code>. If, for example, a new object is ingested in</code>zone2<code>, because we have a bidirectional bucket sync policy for the</code>unidirectional<code>bucket, the object replication flow will be the following:</code>zone2<code>→</code>zone1 → <code>Archive</code>.</p><h3 id="summary-%26-up-next">Summary &amp; Up Next <a class="link-anchor" href="#summary-%26-up-next">¶</a></h3><p>We introduced the archive zone feature in part seven of this series. We shared a hands-on example of configuring an archive zone in a running Ceph Object multisite cluster. In the final post of this series, we will demonstrate how the Archive Zone feature can help you recover critical data from your production site.</p><h3 id="footnote">Footnote <a class="link-anchor" href="#footnote">¶</a></h3><p>The authors would like to thank IBM for supporting the community by facilitating our time to create these posts.</p></div></div><aside><hr class="hr lg:hidden my-16"><div class="grid md-to-lg:grid--cols-2 to-md:grid--gap-14 lg:grid--gap-0"><div><h2 class="h5">Share this article</h2><div class="social-shares"><a class="social-shares__twitter" href="https://twitter.com/share?url=https://ceph.io/en/news/blog/2025/rgw-multisite-replication_part7/&text=Ceph Object Storage Multisite Replication Series. Part Seven&via=ceph" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="transparent" fill-rule="evenodd" stroke-width="2"><circle cx="23.925" cy="23.925" r="21.75" stroke="#eb1414" stroke-linecap="square"/><path fill="#fff" stroke="#0a0c38" stroke-linejoin="round" d="M36 16.575c-.9.375-1.837.675-2.813.788a4.958 4.958 0 002.175-2.738 9.771 9.771 0 01-3.112 1.2c-.938-.975-2.212-1.575-3.637-1.575a4.905 4.905 0 00-4.913 4.913c0 .375.038.75.113 1.125-4.088-.188-7.726-2.175-10.125-5.138a4.986 4.986 0 00-.676 2.475c0 1.725.863 3.225 2.175 4.087a5.231 5.231 0 01-2.212-.6v.076c0 2.4 1.688 4.387 3.938 4.837a5.043 5.043 0 01-1.313.188c-.3 0-.637-.038-.938-.076a4.935 4.935 0 004.613 3.413 9.962 9.962 0 01-6.112 2.1c-.413 0-.788-.037-1.163-.075 2.175 1.35 4.762 2.175 7.538 2.175 9.075 0 14.024-7.5 14.024-14.025v-.638A10.355 10.355 0 0036 16.575z"/></g></svg> <span class="visually-hidden">Twitter</span> </a><a class="social-shares__facebook" href="https://www.facebook.com/sharer.php?u=https://ceph.io/en/news/blog/2025/rgw-multisite-replication_part7/" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="transparent" fill-rule="evenodd" stroke-width="2"><circle cx="23.925" cy="23.925" r="21.75" stroke="#eb1414" stroke-linecap="square"/><path fill="#fff" stroke="#0a0c38" stroke-linejoin="round" d="M21.043 36.75V25.7H17.25v-5.1h3.793v-3.562c0-3.88 2.456-5.788 5.917-5.788 1.658 0 3.082.123 3.498.179v4.054l-2.4.001c-1.883 0-2.308.894-2.308 2.207V20.6h5.1l-1.7 5.1h-3.4v11.05h-4.707z"/></g></svg> <span class="visually-hidden">Facebook</span></a></div><hr class="hidden lg:block hr"></div><div><h2 id="tags-desc" class="h5">Read more articles like this</h2><ul class="list-none p-0" aria-describedby="tags-desc"><li class="mb-3"><a class="button button--pill" href="/en/news/blog/category/ceph/">ceph</a></li><li class="mb-3"><a class="button button--pill" href="/en/news/blog/category/rgw/">rgw</a></li><li><a class="button button--pill" href="/en/news/blog/category/s3/">s3</a></li></ul></div></div></aside></div></section></div></main><footer class="site-footer"><div class="wrapper"><nav aria-label="site"><ul class="site-footer__site"><li><a href="/en/discover/">Discover</a><ul><li><a href="/en/discover/benefits/">Benefits</a></li><li><a href="/en/discover/technology/">Technology</a></li><li><a href="/en/discover/vision/">Vision</a></li><li><a href="/en/discover/use-cases/">Use cases</a></li><li><a href="/en/discover/case-studies/">Case studies</a></li></ul></li><li><a href="/en/users/">Users</a><ul><li><a href="/en/users/getting-started/">Getting started</a></li><li><a href="/en/users/documentation/">Documentation</a></li><li><a href="/en/users/survey/">Survey</a></li></ul></li><li><a href="/en/developers/">Developers</a><ul><li><a href="/en/developers/code/">Code</a></li><li><a href="/en/developers/contribute/">Contribute</a></li><li><a href="/en/developers/roadmap/">Roadmap</a></li><li><a href="/en/developers/google-summer-of-code/">Google Summer of Code</a></li></ul></li><li><a href="/en/community/">Community</a><ul><li><a href="/en/community/cq/">Ceph Quarterly</a></li><li><a href="/en/community/events/">Events</a></li><li><a href="/en/community/tech-talks/">Tech talks</a></li><li><a href="/en/community/meetups/">Virtual Meetings &amp; Meetups</a></li><li><a href="/en/community/connect/">Connect</a></li><li><a href="/en/community/team/">Team</a></li><li><a href="/en/community/ambassadors/">Ambassadors</a></li><li><a href="/en/community/jobs/">Jobs</a></li></ul></li><li><a href="/en/news/">News</a><ul><li><a href="/en/news/blog/" aria-current="page">Ceph Blog</a></li><li><a href="/en/news/publications/">Publications</a></li><li><a href="/en/news/contribute/">Contribute Content</a></li><li><a href="/en/news/crimson/">Crimson Project</a></li></ul></li><li><a href="/en/foundation/">Foundation</a><ul><li><a href="/en/foundation/about/">About the foundation</a></li><li><a href="/en/foundation/members/">Foundation members</a></li><li><a href="/en/foundation/member-benefits/">Member Tiers and Benefits</a></li><li><a href="/en/foundation/join/">Become a member</a></li></ul></li></ul></nav><svg class="site-footer__ceph" xmlns="http://www.w3.org/2000/svg" width="154" height="42" viewBox="0 0 154 42" aria-hidden="true" focusable="false"><g fill="#f0424d"><path d="M35 38c-1.4-.8-2.3-1.7-2.5-2.7s.2-2 1.3-3.3A16.2 16.2 0 0021.6 5.2h-.1A16.2 16.2 0 009.2 32c1.1 1.3 1.5 2.3 1.4 3.2S9.5 37.2 8 38a22.8 22.8 0 01-5.7-7.2A21.3 21.3 0 010 21.4 21.4 21.4 0 0121.5 0h.1A21.4 21.4 0 0143 21.4a21.6 21.6 0 01-.6 4.9 21 21 0 01-1.6 4.5 22.7 22.7 0 01-5.7 7.2"/><path d="M27.2 42a8 8 0 01-2-2 8.7 8.7 0 01-1.6-5.3 11.8 11.8 0 01.9-4.2 12 12 0 012.3-3.7l.2-.2a10.3 10.3 0 001-1.4 7 7 0 001-2 7.5 7.5 0 00-6.3-9.2 7.3 7.3 0 00-1.1 0h-.1a7.4 7.4 0 00-4 1 7.5 7.5 0 00-2.2 2 7.5 7.5 0 00-1.2 6.2 7.2 7.2 0 00.8 2 9.7 9.7 0 001.1 1.4l.2.3a11.9 11.9 0 012.3 3.6 11.8 11.8 0 011 4.2 8.8 8.8 0 01-1.8 5.4 8 8 0 01-1.9 1.9l-1.2-.4A21.3 21.3 0 0111 40a6 6 0 003.2-5.3 6.4 6.4 0 00-1.7-4.2l-.3-.4-.9-1a12.8 12.8 0 01-.2-15 13 13 0 013.7-3.5 12.8 12.8 0 015-1.8 13.3 13.3 0 011.7-.2h.2a13.4 13.4 0 011.8.2 12.8 12.8 0 014.9 1.8A13 13 0 0132 14a12.7 12.7 0 01-.2 15l-.9 1-.3.4a6.5 6.5 0 00-1.7 4.3 6 6 0 003.1 5.4 21.4 21.4 0 01-3.6 1.5l-1.2.4"/><path d="M21.5 25.8a4.2 4.2 0 114.2-4.2 4.2 4.2 0 01-4.2 4.2"/></g><g fill="#e7e9e8"><path d="M75.6 26.4c0 5.5-.5 7-1.8 8.4-.8.8-2 1.3-4.3 1.3h-8.2c-2.6 0-4.2-.4-5.3-1.5-1.7-1.8-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1-1 2.7-1.5 5.3-1.5h8c2.5 0 3.6.5 4.4 1.3 1.3 1.3 1.8 3 1.8 8h-5c-.1-3.5-.3-4-.6-4.3s-.6-.5-1.8-.5H62c-1.5 0-2 .1-2.3.5-.5.5-.7 1.5-.7 8.3s.2 7.7.7 8.2c.4.4.8.5 2.3.5h6.2c1.1 0 1.6 0 2-.4s.5-1.4.5-4.7h5M84.3 20.4h12.2c0-4.5-.3-5.5-.8-6-.3-.3-.7-.5-2.3-.5h-6c-1.6 0-2 .2-2.4.6s-.6 1.3-.7 5.9zm0 4c0 5.3.4 6.3.8 6.7s.7.5 2.2.5h7c1 0 1.4-.2 1.7-.5s.4-1 .5-3.3h5c0 4.2-.4 5.6-1.8 7-.8.8-2 1.3-4.3 1.3h-8.7c-2.6 0-4.2-.4-5.3-1.5-1.7-1.7-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1.1-1 2.7-1.5 5.3-1.5H94c2.6 0 4.3.5 5.3 1.4 1.7 1.8 2.2 3.8 2.2 11.6V24c0 .4-.1.6-.6.6H84.3M121.6 31c-.4.4-1 .6-2.7.6H115a10.1 10.1 0 01-4.8-1.5l-.3-.1V15.5a10.7 10.7 0 015-1.5h4c1.6 0 2.2.2 2.7.6.7.8 1 2.2 1 8.2s-.2 7.4-1 8.1zm-1.5-21.6h-3.6c-2.2 0-3.3.5-6.6 3.3V9.4h-5.2V42h5.2v-9c3.3 2.7 4.4 3.2 6.6 3.2h3.6c2.9 0 4.3-.5 5.5-1.6 1.4-1.5 2-3.5 2-11.8s-.6-10.3-2-11.8c-1.2-1.1-2.6-1.6-5.5-1.6M152.4 11c-1-1-2.3-1.6-4.6-1.6h-4.2c-2.2 0-3.3.5-6.7 3.3V2.5a18.8 18.8 0 00-5-2v35.6h5V15.5l1.1-.5a9.1 9.1 0 014-1h3.4c1.7 0 2.2.2 2.8.7a3.4 3.4 0 01.6 2.6V36h5.2V17c0-3.7-.6-5-1.6-6"/></g></svg><p class="color-white p text-xs">&copy; 2024 All rights reserved.</p><nav aria-label="support"><ul class="site-footer__support"><li><a href="/en/code-of-conduct/">Code of conduct</a></li><li><a href="/en/terms/">Terms of use</a></li><li><a href="/en/privacy/">Privacy policy</a></li><li><a href="/en/trademarks/">Trademarks</a></li><li><a href="/en/logos/">Logo Usage</a></li><li><a href="/en/security/">Security</a></li></ul><ul class="site-footer__social"><li><a class="site-footer__twitter" href="https://twitter.com/ceph" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#d3dde7" aria-hidden="true" focusable="false"><path d="M24.857 4.125c-.964.429-1.982.696-3.053.857 1.071-.643 1.928-1.66 2.303-2.893a11.61 11.61 0 01-3.375 1.286 5.34 5.34 0 00-3.857-1.66 5.259 5.259 0 00-5.25 5.25c0 .428.054.803.16 1.178C7.447 7.929 3.536 5.839.912 2.625.482 3.429.214 4.285.214 5.25c0 1.821.911 3.429 2.357 4.393A6.199 6.199 0 01.161 9v.054a5.293 5.293 0 004.232 5.196A5.84 5.84 0 013 14.41c-.321 0-.696-.053-1.018-.106.697 2.089 2.625 3.642 4.929 3.642-1.822 1.393-4.072 2.25-6.536 2.25-.429 0-.857 0-1.232-.053a14.907 14.907 0 008.09 2.357c9.696 0 15-8.036 15-15v-.696a9.62 9.62 0 002.624-2.679z"/></svg> <span class="visually-hidden">Twitter</span></a></li><li><a class="site-footer__youtube" href="https://www.youtube.com/channel/UCno-Fry25FJ7B4RycCxOtfw" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#d3dde7" aria-hidden="true" focusable="false"><path id="a" d="M23.75 7.079s-.25-1.65-.95-2.4c-.9-.95-1.95-.95-2.4-1-3.35-.25-8.4-.25-8.4-.25s-5.05 0-8.4.25c-.45.05-1.5.05-2.4 1-.7.75-.95 2.4-.95 2.4S0 9.029 0 10.979v1.8c0 1.95.25 3.9.25 3.9s.25 1.65.95 2.4c.9.95 2.1.95 2.65 1.05 1.9.2 8.15.25 8.15.25s5.05 0 8.4-.25c.45-.05 1.5-.05 2.4-1 .7-.75.95-2.4.95-2.4s.25-1.95.25-3.9v-1.8c0-2-.25-3.95-.25-3.95zm-14.25 7.9v-6.75l6.5 3.4-6.5 3.35z"/></svg> <span class="visually-hidden">YouTube</span></a></li><li><a class="site-footer__facebook" href="https://www.facebook.com/cephstorage" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#d3dde7" aria-hidden="true" focusable="false"><path d="M24 12.072C23.999 5.689 19 .423 12.626.09 6.251-.243.732 4.473.066 10.822-.601 17.17 3.82 22.929 10.125 23.926v-8.385H7.078v-3.469h3.047V9.428c0-3.007 1.792-4.669 4.532-4.669.9.013 1.798.091 2.687.235v2.953H15.83a1.735 1.735 0 00-1.955 1.875v2.25h3.328l-.532 3.469h-2.797v8.385A12 12 0 0024 12.072z"/></svg> <span class="visually-hidden">Facebook</span></a></li></ul></nav></div><script type="text/javascript">!function(n,t,e,i,a,r){n.twq||((i=n.twq=function(){i.exe?i.exe.apply(i,arguments):i.queue.push(arguments)}).version="1.1",i.queue=[],(a=t.createElement(e)).async=!0,a.src="//static.ads-twitter.com/uwt.js",(r=t.getElementsByTagName(e)[0]).parentNode.insertBefore(a,r))}(window,document,"script"),twq("init","o6l7s"),twq("track","PageView"),_linkedin_partner_id="3438284",window._linkedin_data_partner_ids=window._linkedin_data_partner_ids||[],window._linkedin_data_partner_ids.push(_linkedin_partner_id),function(){window.lintrk||(window.lintrk=function(n,t){window.lintrk.q.push([n,t])},window.lintrk.q=[]);var n=document.getElementsByTagName("script")[0],t=document.createElement("script");t.type="text/javascript",t.async=!0,t.src="https://snap.licdn.com/li.lms-analytics/insight.min.js",n.parentNode.insertBefore(t,n)}()</script><noscript><img height="1" width="1" style="display:none" alt="" src="https://px.ads.linkedin.com/collect/?pid=3438284&fmt=gif"></noscript></footer><script type="module" src="/js/bundle-main.mjs"></script><script nomodule src="/js/bundle-main.js"></script></body></html>
