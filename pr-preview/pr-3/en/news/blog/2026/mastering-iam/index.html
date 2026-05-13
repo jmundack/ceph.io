@@ -1,0 +1,432 @@
+<!DOCTYPE html><html lang="en" dir="ltr" class="no-js"><head prefix="og: http://ogp.me/ns"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="ie=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f1726c"><script>!function(e){e.className=e.className.replace(/\bno-js/,"js")}(document.documentElement)</script><title>Ceph.io — Mastering IAM in Ceph: Multi-Tenancy, Access Control, and Why ACLs Must Die</title><meta name="description" content="Ceph is an open source distributed storage system designed to evolve with data."><link rel="alternate" hreflang="en" href="https://ceph.io/en/news/blog/2026/mastering-iam/"><link rel="canonical" href="https://ceph.io/en/news/blog/2026/mastering-iam/"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" media="print" onload='this.onload=null,this.removeAttribute("media")' href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"></noscript><link rel="icon" type="image/png" href="/assets/favicons/favicon-16x16.png" sizes="16x16"><link rel="icon" type="image/png" href="/assets/favicons/favicon-32x32.png" sizes="32x32"><link rel="icon" type="image/png" href="/assets/favicons/favicon-96x96.png" sizes="96x96"><link rel="icon" type="image/png" href="/assets/favicons/android-chrome-192x192.png" sizes="192x192"><link rel="apple-touch-icon" sizes="57x57" href="/assets/favicons/apple-touch-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/favicons/apple-touch-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/favicons/apple-touch-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/favicons/apple-touch-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/favicons/apple-touch-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/favicons/apple-touch-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/favicons/apple-touch-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/favicons/apple-touch-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon-180x180.png"><link rel="mask-icon" href="/assets/favicons/safari-pinned-tab.svg" color="#f0424d"><link rel="manifest" href="/assets/favicons/manifest.json"><meta name="robots" content="noindex, nofollow"><meta property="og:locale" content="en"><meta property="og:title" content="Mastering IAM in Ceph: Multi-Tenancy, Access Control, and Why ACLs Must Die - Ceph"><meta property="og:url" content="https://ceph.io/en/news/blog/2026/mastering-iam/"><meta property="og:type" content="website"><meta property="og:image" content="https://ceph.ioimages/5e07de10-5b83-4de3-a013-fd9c3f77427a.png"><meta property="og:site_name" content="Ceph"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@ceph"><meta name="twitter:title" content="Mastering IAM in Ceph: Multi-Tenancy, Access Control, and Why ACLs Must Die - Ceph"><meta name="twitter:url" content="https://ceph.io/en/news/blog/2026/mastering-iam/"><meta name="twitter:image" content="https://ceph.ioimages/5e07de10-5b83-4de3-a013-fd9c3f77427a.png"><script>var _paq=window._paq=window._paq||[];_paq.push(["setCookieDomain","*.ceph.io"]),_paq.push(["trackPageView"]),_paq.push(["enableLinkTracking"]),function(){_paq.push(["setTrackerUrl","https://ceph.matomo.cloud/matomo.php"]),_paq.push(["setSiteId","1"]);var e=document,a=e.createElement("script"),e=e.getElementsByTagName("script")[0];a.async=!0,a.src="//cdn.matomo.cloud/ceph.matomo.cloud/matomo.js",e.parentNode.insertBefore(a,e)}()</script><noscript><p><img src="https://ceph.matomo.cloud/matomo.php?idsite=1&amp;rec=1" style="border:0" alt=""></p></noscript></head><body class="blog-post"><div class="scroll-offset" data-scroll-offset></div><header class="site-header" data-site-header><div class="flex flex--align-center flex--justify-between wrapper"><a class="site-header__logo" href="/en/"><svg xmlns="http://www.w3.org/2000/svg" width="154" height="42" viewBox="0 0 154 42" aria-hidden="true" focusable="false"><g fill="#f0424d" class="logo-ceph__icon"><path d="M35 38c-1.4-.8-2.3-1.7-2.5-2.7s.2-2 1.3-3.3A16.2 16.2 0 0021.6 5.2h-.1A16.2 16.2 0 009.2 32c1.1 1.3 1.5 2.3 1.4 3.2S9.5 37.2 8 38a22.8 22.8 0 01-5.7-7.2A21.3 21.3 0 010 21.4 21.4 21.4 0 0121.5 0h.1A21.4 21.4 0 0143 21.4a21.6 21.6 0 01-.6 4.9 21 21 0 01-1.6 4.5 22.7 22.7 0 01-5.7 7.2"/><path d="M27.2 42a8 8 0 01-2-2 8.7 8.7 0 01-1.6-5.3 11.8 11.8 0 01.9-4.2 12 12 0 012.3-3.7l.2-.2a10.3 10.3 0 001-1.4 7 7 0 001-2 7.5 7.5 0 00-6.3-9.2 7.3 7.3 0 00-1.1 0h-.1a7.4 7.4 0 00-4 1 7.5 7.5 0 00-2.2 2 7.5 7.5 0 00-1.2 6.2 7.2 7.2 0 00.8 2 9.7 9.7 0 001.1 1.4l.2.3a11.9 11.9 0 012.3 3.6 11.8 11.8 0 011 4.2 8.8 8.8 0 01-1.8 5.4 8 8 0 01-1.9 1.9l-1.2-.4A21.3 21.3 0 0111 40a6 6 0 003.2-5.3 6.4 6.4 0 00-1.7-4.2l-.3-.4-.9-1a12.8 12.8 0 01-.2-15 13 13 0 013.7-3.5 12.8 12.8 0 015-1.8 13.3 13.3 0 011.7-.2h.2a13.4 13.4 0 011.8.2 12.8 12.8 0 014.9 1.8A13 13 0 0132 14a12.7 12.7 0 01-.2 15l-.9 1-.3.4a6.5 6.5 0 00-1.7 4.3 6 6 0 003.1 5.4 21.4 21.4 0 01-3.6 1.5l-1.2.4"/><path d="M21.5 25.8a4.2 4.2 0 114.2-4.2 4.2 4.2 0 01-4.2 4.2"/></g><g fill="#3b434a" class="logo-ceph__text"><path d="M75.6 26.4c0 5.5-.5 7-1.8 8.4-.8.8-2 1.3-4.3 1.3h-8.2c-2.6 0-4.2-.4-5.3-1.5-1.7-1.8-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1-1 2.7-1.5 5.3-1.5h8c2.5 0 3.6.5 4.4 1.3 1.3 1.3 1.8 3 1.8 8h-5c-.1-3.5-.3-4-.6-4.3s-.6-.5-1.8-.5H62c-1.5 0-2 .1-2.3.5-.5.5-.7 1.5-.7 8.3s.2 7.7.7 8.2c.4.4.8.5 2.3.5h6.2c1.1 0 1.6 0 2-.4s.5-1.4.5-4.7h5M84.3 20.4h12.2c0-4.5-.3-5.5-.8-6-.3-.3-.7-.5-2.3-.5h-6c-1.6 0-2 .2-2.4.6s-.6 1.3-.7 5.9zm0 4c0 5.3.4 6.3.8 6.7s.7.5 2.2.5h7c1 0 1.4-.2 1.7-.5s.4-1 .5-3.3h5c0 4.2-.4 5.6-1.8 7-.8.8-2 1.3-4.3 1.3h-8.7c-2.6 0-4.2-.4-5.3-1.5-1.7-1.7-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1.1-1 2.7-1.5 5.3-1.5H94c2.6 0 4.3.5 5.3 1.4 1.7 1.8 2.2 3.8 2.2 11.6V24c0 .4-.1.6-.6.6H84.3M121.6 31c-.4.4-1 .6-2.7.6H115a10.1 10.1 0 01-4.8-1.5l-.3-.1V15.5a10.7 10.7 0 015-1.5h4c1.6 0 2.2.2 2.7.6.7.8 1 2.2 1 8.2s-.2 7.4-1 8.1zm-1.5-21.6h-3.6c-2.2 0-3.3.5-6.6 3.3V9.4h-5.2V42h5.2v-9c3.3 2.7 4.4 3.2 6.6 3.2h3.6c2.9 0 4.3-.5 5.5-1.6 1.4-1.5 2-3.5 2-11.8s-.6-10.3-2-11.8c-1.2-1.1-2.6-1.6-5.5-1.6M152.4 11c-1-1-2.3-1.6-4.6-1.6h-4.2c-2.2 0-3.3.5-6.7 3.3V2.5a18.8 18.8 0 00-5-2v35.6h5V15.5l1.1-.5a9.1 9.1 0 014-1h3.4c1.7 0 2.2.2 2.8.7a3.4 3.4 0 01.6 2.6V36h5.2V17c0-3.7-.6-5-1.6-6"/></g></svg> <span class="visually-hidden">Ceph.io Homepage</span> </a><a class="site-header__menu-open" href="#menu" data-menu-open><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" fill-rule="evenodd" stroke="#0a0c38" stroke-linecap="square" stroke-width="2"><path d="M1 12h22M1 5h22M12 19h11"/></g></svg> <span class="visually-hidden">Open menu</span></a><div class="site-header__menu" id="menu" data-menu><a class="site-header__menu-close" href="#menu-toggle" data-menu-close><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="square" stroke-width="2"><path d="M16 8l-8 8M16 16L8 8"/></g></svg> <span class="visually-hidden">Close menu</span></a><div class="site-header__overflow"><nav aria-label="main"><ul class="nav-primary"><li><a href="/en/discover/">Discover</a></li><li><a href="/en/users/">Users</a></li><li><a href="/en/developers/">Developers</a></li><li><a href="/en/community/">Community</a></li><li><a href="/en/news/" aria-current="page">News</a></li><li><a href="/en/foundation/">Foundation</a></li></ul></nav></div></div></div></header><main id="main"><div class="wrapper"><nav aria-label="secondary"><ul class="nav-secondary" data-nav-secondary><li class="nav-secondary__wrapper"><a class="nav-secondary__top" href="/en/news/" data-nav-secondary-toggle>News</a><ul class="nav-secondary__sub" data-nav-secondary-sub><li><a href="/en/news/blog/" aria-current="page">Ceph Blog</a></li><li><a href="/en/news/publications/">Publications</a></li><li><a href="/en/news/contribute/">Contribute Content</a></li><li><a href="/en/news/crimson/">Crimson Project</a></li></ul></li></ul></nav><section class="section"><div class="grid lg:grid--cols-auto-72"><div><h1 class="h1">Mastering IAM in Ceph: Multi-Tenancy, Access Control, and Why ACLs Must Die</h1><div class="flex flex--gap-8 flex--pipe mb-7 lg:mb-9 xl:mb-10"><time class="mb-0 p-sm" datetime="Sat Jan 24 2026 00:00:00 GMT+0000 (Coordinated Universal Time)">Jan 24, 2026</time> <span class="mb-0 p-sm text-semibold">Daniel Alexander Parkes, Anthony D&#39;Atri</span></div></div></div><div class="grid lg:grid--cols-auto-72 to-lg:grid--gap-0 lg:grid--gap-16 xl:grid--gap-20"><div><div class="to-lg:w-full-breakout"><img alt="" class="mb-8 lg:mb-10 xl:mb-12 w-full" loading="lazy" src="/en/news/blog/2026/mastering-iam/images/5e07de10-5b83-4de3-a013-fd9c3f77427a.png"></div><div class="intro-para richtext"><h2 id="introduction">Introduction <a class="link-anchor" href="#introduction">¶</a></h2><p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1767549864482/5e07de10-5b83-4de3-a013-fd9c3f77427a.png" alt=""></p><h2 id="introduction%3A-when-security-theater-becomes-a-real-disaster">Introduction: When Security Theater Becomes a Real Disaster <a class="link-anchor" href="#introduction%3A-when-security-theater-becomes-a-real-disaster">¶</a></h2><p>In March 2017, a misconfigured S3 bucket at Verizon exposed the personal information of 14 million customers. The root cause wasn't a sophisticated attack; it was a simple oversight in access permissions. The bucket was set to be publicly accessible due to S3 permission misconfiguration, and no one noticed because ACLs were managed separately from the company's centralized IAM policies. The security team had implemented careful, identity-based access controls, but a resource-level ACL silently bypassed them by granting access to &quot;All Users.&quot;</p><p>This scenario repeats constantly across the industry: ACLs creating invisible access paths that security teams don't know exist, buckets accidentally exposed to the public internet, and contractors uploading data that the bucket owner cannot reliably read or administer, while still consuming capacity.</p><p>Between 2017 and 2019, major companies exposed hundreds of millions of records via misconfigured S3 permissions (ACLs and/or bucket policies):</p><ul><li><p><strong>Verizon (2017)</strong>: <a href="https://www.techtarget.com/searchsecurity/news/450422709/Misconfigured-AWS-S3-bucket-exposes-millions-of-Verizon-customers-data">14 million customers</a> - An AWS S3 bucket configured for public access exposed names, addresses, account PINs</p></li><li><p><strong>Facebook (2019)</strong>: <a href="https://www.upguard.com/breaches/facebook-user-data-leak">540 million records</a> - Third-party apps stored user data in publicly accessible S3 buckets</p></li><li><p><strong>Instagram (2019)</strong>: <a href="https://www.cpomagazine.com/cyber-security/instagram-breach-exposes-personal-data-of-49-million-users/">49 million records</a> - Marketing firm left influencer database unprotected in AWS S3</p></li></ul><p>The AWS response was clear: <a href="https://aws.amazon.com/about-aws/whats-new/2023/04/amazon-s3-security-best-practices-buckets-default/">since April 2023</a>, <strong>all new S3 buckets default to &quot;ACLs disabled&quot;</strong> (BucketOwnerEnforced) and <strong>Block Public Access enabled</strong>. AWS strongly recommends disabling ACLs on existing buckets and migrating to a pure policy-based model with IAM Accounts architecture.</p><p>If you're running the Ceph Object Gateway (RGW), you have access to the same IAM Accounts model introduced in Ceph Squid 19.2.0. This post explains why ACLs must be disabled immediately and how to implement modern, secure access control with IAM policies.</p><blockquote><p><strong>Do This First (Quick Security Wins)</strong></p><p>Before reading further, take these two actions on all production buckets:</p><ol><li><p><strong>Enable Block Public Access</strong> - Prevents public exposure via ACLs or bucket policies</p></li><li><p><strong>Deny ACL operations</strong> - Add explicit deny for <code>s3:PutObjectAcl</code> and <code>s3:PutBucketAcl</code> as defense-in-depth</p></li></ol><p>These changes prevent the attack patterns described in this post. Continue reading to understand why and how.</p></blockquote><hr><h2 id="why-acls-failed%3F">Why ACLs Failed? <a class="link-anchor" href="#why-acls-failed%3F">¶</a></h2><p>Access Control Lists (ACLs) were S3's original permission system. They failed for several critical reasons that made them fundamentally unsafe for production use.</p><h3 id="public-access-disasters">Public Access Disasters <a class="link-anchor" href="#public-access-disasters">¶</a></h3><p>The most dangerous ACL failure was a silent public exposure. A single misconfigured ACL could grant the entire internet access to your data, and your security team would never know because ACLs weren't visible in centralized IAM policies.</p><p>How it happened:</p><pre><code class="language-bash">$ export RGW_ENDPOINT=&quot;https://rgw.example.com&quot;
+
+# Developer accidentally makes object public during testing
+$ aws --profile developer --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api put-object-acl \
+  --bucket bucketacl \
+  --key hosts \
+  --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+$ aws --profile developer --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api get-object-acl \
+  --bucket bucketacl \ 
+  --key hosts
+{
+    &quot;Owner&quot;: {
+        &quot;DisplayName&quot;: &quot;developer&quot;,
+        &quot;ID&quot;: &quot;developer&quot;
+    },
+    &quot;Grants&quot;: [
+        {
+            &quot;Grantee&quot;: {
+                &quot;Type&quot;: &quot;Group&quot;,
+                &quot;URI&quot;: &quot;http://acs.amazonaws.com/groups/global/AllUsers&quot;
+            },
+            &quot;Permission&quot;: &quot;READ&quot;
+        }
+    ]
+}
+
+# Security team checks IAM policies - looks fine (against the same RGW endpoint)
+
+$ aws --profile account-root --endpoint-url &quot;$RGW_ENDPOINT&quot; iam get-user-policy \
+  --user-name developer \
+  --policy-name S3Access
+
+# ✓ Least privilege, no issues detected
+
+# Meanwhile, the object is public to anyone who can reach the RGW endpoint:
+
+$ curl &quot;$RGW_ENDPOINT/bucketacl/hosts&quot; 
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.2XX.0.X   ceph01 
+
+# Full access, no authentication required
+# The same risk exists at bucket scope; a public bucket ACL enables unauthenticated listing
+# which can leak keys and metadata
+
+$ aws --profile developer --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api put-bucket-acl \
+--bucket bucketacl --acl public-read
+
+# Unauthenticated Access to list bucket contents
+
+$ curl -s &quot;$RGW_ENDPOINT/bucketacl&quot; | xmllint --format -
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;ListBucketResult xmlns=&quot;http://s3.amazonaws.com/doc/2006-03-01/&quot;&gt;
+  &lt;Name&gt;bucketacl&lt;/Name&gt;
+ ...
+  &lt;Contents&gt;
+    &lt;Key&gt;hosts&lt;/Key&gt;
+    &lt;LastModified&gt;2025-12-31T08:58:21.346Z&lt;/LastModified&gt;
+    &lt;ETag&gt;&quot;71ae31ad9b6e7fda9cb5a8628b2e152a&quot;&lt;/ETag&gt;
+    &lt;Size&gt;415&lt;/Size&gt;
+    &lt;StorageClass&gt;STANDARD&lt;/StorageClass&gt;
+    &lt;Owner&gt;
+      &lt;ID&gt;developer&lt;/ID&gt;
+      &lt;DisplayName&gt;developer&lt;/DisplayName&gt;
+ ...
+&lt;/ListBucketResult&gt;
+</code></pre><p><strong>Why was it catastrophic</strong>?</p><ol><li><strong>Decentralized control</strong>: ACLs could be set per-bucket and per-object, creating millions of potential exposure points</li><li><strong>No visibility</strong>: ACLs didn't appear in the IAM console - security teams had no way to audit them centrally</li><li><strong>Silent bypasses</strong>: Even perfect IAM policies couldn't prevent an ACL from granting public access</li><li><strong>Object-level chaos</strong>: With millions of objects, each having its own ACL, comprehensive auditing was impossible</li></ol><p><strong>Real-world impact</strong>: The three breaches in our introduction (Verizon, Facebook, Instagram) all involved publicly accessible S3 data caused by permission misconfiguration (ACLs, bucket policies, or both), combined with weak central visibility and auditing; exactly the problems that policy-based access control solves.</p><h3 id="the-object-ownership-problem">The Object Ownership Problem <a class="link-anchor" href="#the-object-ownership-problem">¶</a></h3><p>Beyond public access, ACLs created an ownership nightmare. When external accounts uploaded objects to your bucket, they owned those objects, not you.</p><pre><code class="language-bash"># Contractor uploads data to your bucket
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 cp sensitive.pdf s3://company-bucket/contractor-data/ --profile contractor
+upload: ./sensitive.pdf to s3://company-bucket/contractor-data/sensitive.pdf
+
+# Who owns this object?
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api get-object-acl \
+  --bucket company-bucket \
+  --key contractor-data/sensitive.pdf \
+  --profile contractor
+{
+    &quot;Owner&quot;: {
+        &quot;DisplayName&quot;: &quot;Contractor Account&quot;,
+        &quot;ID&quot;: &quot;contractor&quot;  ← Contractor owns it, not you!
+    }
+}
+
+# You (bucket owner) can't READ the object
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 cp \
+  s3://company-bucket/contractor-data/sensitive.pdf \
+  ./test.pdf --profile company-admin
+fatal error: An error occurred (403) when calling the HeadObject operation: Forbidden
+
+# You can't even GET the ACL to see permissions
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api get-object-acl \
+  --bucket company-bucket --key contractor-data/sensitive.pdf \
+  --profile company-admin
+fatal error: An error occurred (AccessDenied) when calling the GetObjectAcl operation: Access Denied
+
+
+# You can't MODIFY the ACL
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api put-object-acl \
+  --bucket company-bucket --key contractor-data/sensitive.pdf \
+  --acl private --profile company-admin
+fatal error: An error occurred (AccessDenied) when calling the PutObjectAcl operation: Access Denied
+</code></pre><p>For on-premises Ceph deployments, while there's no per-GB billing surprise, the <strong>operational and compliance problems are identical</strong>: you can't read, audit, or manage data in your own infrastructure.</p><blockquote><p>In Ceph RGW, bucket owners CAN delete objects they don't own. However, they still can't read, view ACLs, or manage those objects, creating operational blind spots and compliance risks.</p></blockquote><h3 id="the-authenticated-read-trap-(over-sharing-inside-the-cluster)">The authenticated-read trap (over-sharing inside the cluster) <a class="link-anchor" href="#the-authenticated-read-trap-(over-sharing-inside-the-cluster)">¶</a></h3><p>ACLs include grants that <em>appear</em> safer than &quot;public&quot; but remain dangerously broad. In S3, <code>authenticated-read</code> grants read access to the <code>AuthenticatedUsers</code> group; in Ceph RGW terms, that can translate to &quot;any identity that can authenticate to this RGW endpoint/cluster,&quot; not &quot;only my team.&quot; On a shared on-premises platform (multiple accounts, tenants, service accounts, CI users, integrations), this can lead to accidental cross-team or cross-tenant data exposure.</p><pre><code class="language-bash"># Finance team uploads &quot;internal&quot; data with authenticated-read
+# (thinking it's safer than public)
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 cp finance-report.pdf \
+  s3://company-bucket/finance-report.pdf \
+  --acl authenticated-read --profile finance-team
+ upload: ./finance-report.pdf to s3://company-bucket/finance-report.pdf
+
+# Check the ACL - looks reasonable?
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api get-object-acl \
+  --bucket company-bucket \
+  --key finance-report.pdf --profile finance-team
+{
+    &quot;Owner&quot;: {
+        &quot;DisplayName&quot;: &quot;Finance Team&quot;,
+        &quot;ID&quot;: &quot;finance-team&quot;
+    },
+    &quot;Grants&quot;: [
+        {
+            &quot;Grantee&quot;: {
+                &quot;Type&quot;: &quot;Group&quot;,
+                &quot;URI&quot;: &quot;http://acs.amazonaws.com/groups/global/AuthenticatedUsers&quot;
+            },
+            &quot;Permission&quot;: &quot;READ&quot;  ← ANY authenticated user on the cluster!
+        }
+    ]
+}
+
+# DevOps team (completely different department) can read it!
+$ aws --profile devops --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 cp \
+  s3://company-bucket/finance-report.pdf ./leaked.pdf
+download: s3://company-bucket/finance-report.pdf to ./leaked.pdf
+
+# Contractor user (or any other authenticated user) can also access it
+$ aws --profile contractor --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 cp \
+  s3://company-bucket/finance-report.pdf ./contractor-copy.pdf
+download: s3://company-bucket/finance-report.pdf to ./contractor-copy.pdf
+
+# Anonymous users are still blocked
+$ aws s3 cp s3://company-bucket/finance-report.pdf ./anon.pdf \
+  --endpoint-url &quot;$RGW_ENDPOINT&quot; --no-sign-request
+fatal error: An error occurred (403) when calling the HeadObject operation: Forbidden
+</code></pre><h3 id="public-write-is-an-integrity-disaster%2C-not-just-a-leak">Public write is an integrity disaster, not just a leak <a class="link-anchor" href="#public-write-is-an-integrity-disaster%2C-not-just-a-leak">¶</a></h3><p>ACL errors are not solely about &quot;read&quot; exposure. With bucket ACLs, <code>public-read-write</code> (or broad write grants) can enable untrusted PUT requests to a bucket. That turns into an integrity incident: poisoned datasets, overwritten &quot;golden&quot; artifacts, malware hosting, or backup tampering. Even on-prem &quot;internal-only&quot; does not save you; it just changes the attacker's vector, but the threat still exists.</p><h3 id="write_acp-is-the-%22permission-to-rewrite-permissions.%22">WRITE_ACP is the &quot;permission to rewrite permissions.&quot; <a class="link-anchor" href="#write_acp-is-the-%22permission-to-rewrite-permissions.%22">¶</a></h3><p>ACLs don’t just control data-plane actions; they can delegate control-plane authority over the ACL itself. In Ceph RGW S3 semantics, <code>WRITE_ACP</code> the permission that allows changing a bucket's ACL (required <code>WRITE_ACP</code> for <code>PUT Bucket ACL</code>). If the wrong principal has it, they can escalate later by granting broader access (including public exposure), and this delegation is distributed across buckets and objects. This is a governance anti-pattern because the system contains a hidden &quot;permission to change permissions.&quot;</p><pre><code class="language-bash"># Step 1: Bucket owner grants contractor WRITE + WRITE_ACP
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api put-bucket-acl \
+  --bucket company-bucket \
+  --grant-write id=contractor \
+  --grant-write-acp id=contractor \
+  --profile developer
+
+# Verify the ACL
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api get-bucket-acl \
+  --bucket company-bucket --profile developer
+{
+    &quot;Owner&quot;: {
+        &quot;DisplayName&quot;: &quot;developer&quot;,
+        &quot;ID&quot;: &quot;developer&quot;
+    },
+    &quot;Grants&quot;: [
+        {
+            &quot;Grantee&quot;: {
+                &quot;DisplayName&quot;: &quot;Contractor Account&quot;,
+                &quot;ID&quot;: &quot;contractor&quot;,
+                &quot;Type&quot;: &quot;CanonicalUser&quot;
+            },
+            &quot;Permission&quot;: &quot;WRITE&quot;
+        },
+        {
+            &quot;Grantee&quot;: {
+                &quot;DisplayName&quot;: &quot;Contractor Account&quot;,
+                &quot;ID&quot;: &quot;contractor&quot;,
+                &quot;Type&quot;: &quot;CanonicalUser&quot;
+            },
+            &quot;Permission&quot;: &quot;WRITE_ACP&quot;  ← Contractor can modify ACLs!
+        },
+        {
+            &quot;Grantee&quot;: {
+                &quot;DisplayName&quot;: &quot;developer&quot;,
+                &quot;ID&quot;: &quot;developer&quot;,
+                &quot;Type&quot;: &quot;CanonicalUser&quot;
+            },
+            &quot;Permission&quot;: &quot;FULL_CONTROL&quot;
+        }
+    ]
+}
+
+# Step 2: Contractor abuses WRITE_ACP to make bucket PUBLIC
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api put-bucket-acl \
+  --bucket company-bucket \
+  --acl public-read --profile contractor
+# Success! Contractor just made the bucket public
+
+# Step 3: Verify the escalation
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3api get-bucket-acl \
+  --bucket company-bucket --profile developer
+{
+    &quot;Owner&quot;: {
+        &quot;DisplayName&quot;: &quot;developer&quot;,
+        &quot;ID&quot;: &quot;developer&quot;
+    },
+    &quot;Grants&quot;: [
+        {
+            &quot;Grantee&quot;: {
+                &quot;Type&quot;: &quot;Group&quot;,
+                &quot;URI&quot;: &quot;http://acs.amazonaws.com/groups/global/AllUsers&quot;
+            },
+            &quot;Permission&quot;: &quot;READ&quot;  ← NOW PUBLIC! Anyone can list contents
+        },
+        {
+            &quot;Grantee&quot;: {
+                &quot;DisplayName&quot;: &quot;developer&quot;,
+                &quot;ID&quot;: &quot;developer&quot;,
+                &quot;Type&quot;: &quot;CanonicalUser&quot;
+            },
+            &quot;Permission&quot;: &quot;FULL_CONTROL&quot;
+        }
+    ]
+}
+
+# Step 4: Anonymous users can now list the bucket
+$ aws s3 ls s3://company-bucket/ \
+  --endpoint-url &quot;$RGW_ENDPOINT&quot; --no-sign-request
+2025-12-31 05:00:00         27 finance-report.pdf
+# Public exposure complete
+</code></pre><h2 id="the-solution%3A-stop-using-acls-immediately">The Solution: Stop using ACLs immediately <a class="link-anchor" href="#the-solution%3A-stop-using-acls-immediately">¶</a></h2><p>AWS and the Ceph Object Gateway (RGW) provide controls to disable ACLs entirely. This should be your first action on any production bucket.</p><h3 id="step-1%3A-block-public-access">Step 1: Block Public Access <a class="link-anchor" href="#step-1%3A-block-public-access">¶</a></h3><p>Enforce public access blocks to prevent bucket ACLs from granting public access.</p><blockquote><p><strong>Ceph AWS CLI Configuration Note</strong></p><p>All <code>aws</code> CLI commands in this guide assume your AWS CLI profile is configured: See the <a href="https://docs.ceph.com/en/latest/radosgw/s3/commons/#aws-cli-setup">Ceph documentation on AWS CLI configuration</a> and <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html">AWS CLI endpoint configuration</a> for details.</p></blockquote><p>Bucket-level (Granularity per individual bucket):</p><pre><code class="language-bash"># Anon access is enabled on bucket from previous example
+
+$ aws s3 ls s3://company-bucket/ \
+  --endpoint-url &quot;$RGW_ENDPOINT&quot; --no-sign-request
+                           PRE contractor-data/
+2025-12-31 07:13:55         26 finance-report.pdf
+
+# We use public-access-block on our bucket
+
+$ aws s3api put-public-access-block \
+  --bucket company-bucket \
+  --public-access-block-configuration \
+    BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true \
+  --endpoint-url &quot;$RGW_ENDPOINT&quot; \
+  --profile developer
+
+# Public access has been removed from the bucket,
+# a non-authorized request fails after the put-public-access-block
+
+$ aws s3 ls s3://company-bucket/ --endpoint-url &quot;$RGW_ENDPOINT&quot; --no-sign-request
+fatal error: An error occurred (AccessDenied) when\
+  calling the ListObjectsV2 operation: Access Denied
+# Some AWS CLI versions surface certain error responses
+# poorly; if you see a Python exception, re-run with
+# --debug to confirm the underlying HTTP 403/AccessDenied.
+</code></pre><p>What each setting does:</p><ul><li><strong>BlockPublicAcls</strong>: Prevents new public ACLs from being applied (redundant if BucketOwnerEnforced, but adds defense in depth)</li><li><strong>IgnorePublicAcls</strong>: Ignores existing public ACLs (treats them as private)</li><li><strong>BlockPublicPolicy</strong>: Prevents bucket policies that grant public access</li><li><strong>RestrictPublicBuckets</strong>: Blocks public access to buckets even if policies exist</li></ul><h3 id="step-2%3A-deny-acl-operations-via-iam-policy">Step 2: Deny ACL Operations via IAM Policy <a class="link-anchor" href="#step-2%3A-deny-acl-operations-via-iam-policy">¶</a></h3><p>As the root account administrator, you should establish a security baseline that prevents ACL usage <strong>by default</strong> for all users and groups. This way, even if a developer tries to use ACLs in the future, they'll get an immediate <code>Access Denied</code> error, preventing accidents before they happen.</p><p>The governance pattern creates a standard &quot;DenyACLs&quot; policy that you attach to every new user or group you create. This establishes ACL blocking as your organization's security baseline.</p><p>Create the standard policy:</p><pre><code class="language-bash">$ cat &gt; deny-acl-operations.json &lt;&lt;'EOF'
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [
+    {
+      &quot;Sid&quot;: &quot;DenyACLOperations&quot;,
+      &quot;Effect&quot;: &quot;Deny&quot;,
+      &quot;Action&quot;: [
+        &quot;s3:PutObjectAcl&quot;,
+        &quot;s3:PutObjectVersionAcl&quot;,
+        &quot;s3:PutBucketAcl&quot;
+      ],
+      &quot;Resource&quot;: [
+        &quot;arn:aws:s3:::*&quot;,
+        &quot;arn:aws:s3:::*/*&quot;
+      ]
+    }
+  ]
+}
+EOF
+</code></pre><p>Here is an example of how to apply the policy to new users as you create them:</p><pre><code class="language-bash"># Create a new developer
+$ aws iam create-user --user-name alice
+{
+    &quot;User&quot;: {
+        &quot;Path&quot;: &quot;/&quot;,
+        &quot;UserName&quot;: &quot;alice&quot;,
+        &quot;UserId&quot;: &quot;4abb3a59-7991-4644-8863-347b02adc48f&quot;,
+        &quot;Arn&quot;: &quot;arn:aws:iam::RGW89761398048153XXX:user/alice&quot;,
+        &quot;CreateDate&quot;: &quot;2025-01-03T15:44:06.920034Z&quot;
+    }
+}
+$ aws iam create-access-key --user-name alice
+
+# Immediately apply the ACL deny policy (before giving any other permissions)
+$ aws iam put-user-policy \
+  --user-name alice \
+  --policy-name DenyACLs \
+  --policy-document file://deny-acl-operations.json
+
+# Now grant the user their actual S3 permissions
+$ aws iam attach-user-policy --user-name alice --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+</code></pre><p>If Alice later tries to configure ACLs on any bucket, she will get <code>Access Denied</code>:</p><pre><code class="language-bash"># Create a bucket as Alice, upload an Object and try to apply a public ACL on the Object
+$ aws --profile alice --endpoint-url=&quot;$RGW_ENDPOINT&quot; \
+  s3 mb s3://alicebucket
+$ aws --profile alice --endpoint-url &quot;$RGW_ENDPOINT&quot; \
+  s3 cp finance-report.pdf s3://alicebucket
+$ aws --profile alice --endpoint-url &quot;$RGW_ENDPOINT&quot; \
+  s3api put-object-acl --bucket alicebucket --key \
+  finance-report.pdf --acl public-read
+#  Error: Access Denied
+fatal error: An error occurred (AccessDenied) when calling the PutObjectAcl operation: Access Denied
+# Some AWS CLI versions surface certain error responses poorly; if you see a Python exception, re-run with --debug to confirm the underlying HTTP 403/AccessDenied.
+</code></pre><h2 id="%22wait%2C-how-do-i-share-data-now%3F%22">&quot;Wait, How Do I Share Data Now?&quot; <a class="link-anchor" href="#%22wait%2C-how-do-i-share-data-now%3F%22">¶</a></h2><p>With ACLs disabled, you might be wondering: How do I grant cross-account access to share my datasets?</p><p>Previously, you might have used ACLs to grant a contractor account read access to specific objects or allowed a partner account to upload files. With ACLs gone, how do you securely share data between accounts?</p><p><strong>Two modern approaches exist</strong>:</p><table><thead><tr><th>Approach</th><th>How It Works</th><th>Access Pattern</th><th>Best For</th></tr></thead><tbody><tr><td><strong>Bucket policies</strong></td><td>Resource owner adds bucket policy; requesting account adds identity policy</td><td>Direct, always-on access</td><td>Static, permanent sharing</td></tr><tr><td><strong>IAM Role assumption</strong></td><td>Resource owner creates an assumable role; requesting account assumes it</td><td>Temporary session (1-12h)</td><td>Dynamic, auditable access</td></tr></tbody></table><p><strong>We'll focus on IAM role assumption</strong> because it provides:</p><ul><li><p><strong>Temporary credentials</strong> that auto-expire (vs. permanent keys)</p></li><li><p><strong>Detailed audit trails</strong> showing who assumed what role and when (vs. static access logs)</p></li><li><p><strong>Instant revocation</strong> by deleting the role (vs. updating multiple policies)</p></li><li><p><strong>Least privilege</strong> with time-bound access (vs. always-on permissions)</p></li></ul><p>This is also AWS's recommended pattern and follows zero-trust principles. Let's see how.</p><h2 id="iam-accounts%3A-the-modern-solution">IAM Accounts: The Modern Solution <a class="link-anchor" href="#iam-accounts%3A-the-modern-solution">¶</a></h2><p>The Ceph Object Gateway (RGW) implements AWS-compatible IAM Accounts, introduced in Squid/19.2.0. This provides proper multi-tenancy with policy-based access control instead of ACLs.</p><h3 id="what-is-an-iam-account%3F">What is an IAM Account? <a class="link-anchor" href="#what-is-an-iam-account%3F">¶</a></h3><p>An <strong>IAM Account</strong> provides isolation for identities and access control:</p><pre><code class="language-ini">Account: finance-team (ID: RGW12345678901234567)
+├── Users &amp; Groups (isolated per account)
+├── Roles (isolated per account)  
+├── Policies (fine-grained permissions)
+└── S3 Buckets (owned by account)
+</code></pre><blockquote><p>S3 bucket <strong>names</strong> are globally unique across ALL accounts in a flat namespace (just like AWS S3). If Finance creates a bucket called <code>financial-reports</code> no other account can use that name. However, bucket ownership and access control are account-specific, only Finance can manage their <code>financial-reports</code> bucket.</p></blockquote><blockquote><p><em>Ceph accounts can optionally belong to a tenant for namespace isolation. Within a tenant, bucket names are unique to that tenant; they are not globally unique across all tenants.</em></p></blockquote><p>Key distinction:</p><ul><li><strong>Account Root User</strong>: Emergency admin access only, created with <code>--account-root</code> flag</li><li><strong>IAM Users</strong>: Day-to-day access, follows the least privilege principle</li></ul><p>For this post, we'll assume you have two accounts already set up:</p><ul><li><strong>Finance Account</strong> (ID: <code>RGW00893359550361292</code>)</li><li><strong>DevOps Account</strong> (ID: <code>RGW89761398048153888</code>)</li></ul><blockquote><p>For a complete guide on creating IAM Accounts, users, and basic configuration, see our previous post: <a href="https://ceph.io/en/news/blog/2025/enhancing-ceph-multitenancy-with-iam-accounts/">Enhancing Ceph Multitenancy with IAM Accounts</a>.</p></blockquote><h2 id="cross-account-sharing%3A-the-modern-way">Cross-Account Sharing: The Modern Way <a class="link-anchor" href="#cross-account-sharing%3A-the-modern-way">¶</a></h2><p><strong>Scenario</strong>: Finance needs to give DevOps read-only access to backup data for disaster recovery testing. Previously, this might have been done with ACLs. Now, we use cross-account role assumption.</p><p><strong>Requirements</strong>:</p><ul><li>DevOps can read backups, but cannot modify or delete them</li><li>Access uses temporary credentials (not long-term keys)</li><li>Finance can revoke access instantly</li><li>Fully auditable (who accessed what, when)</li></ul><h3 id="how-it-works">How It Works <a class="link-anchor" href="#how-it-works">¶</a></h3><p>The key insight: Create a role in the Finance account (same account as the bucket). When DevOps assumes this role, they temporarily &quot;become&quot; a Finance account principal with Finance credentials.</p><p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1765907670163/8b060b2d-6f10-4761-82b7-75717606b121.png" alt=""></p><p>This is the same STS pattern we covered in our <a href="https://ceph.io/en/news/blog/2025/rgw-modernizing-sts/">previous post on temporary credentials</a>, but now applied to cross-account access.</p><h3 id="implementation">Implementation <a class="link-anchor" href="#implementation">¶</a></h3><h4 id="1.-finance-creates-a-cross-account-role-for-the-devops-team">1. Finance Creates a Cross-Account Role for the Devops Team <a class="link-anchor" href="#1.-finance-creates-a-cross-account-role-for-the-devops-team">¶</a></h4><p>Finance creates a role called <code>devops-backup-reader</code> in their account with two policies:</p><p>The Trust Policy (who can assume this role):</p><pre><code class="language-bash">$ cat &gt; trust-policy.json &lt;&lt;'EOF'
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [{
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Principal&quot;: {
+      &quot;AWS&quot;: &quot;arn:aws:iam::RGW89761398048153888:user/dave-backup-ops&quot;
+    },
+    &quot;Action&quot;: &quot;sts:AssumeRole&quot;
+  }]
+}
+EOF
+</code></pre><p>This says: <em><strong>&quot;DevOps account user ‘dave’ can assume this role.&quot;</strong></em></p><blockquote><p>You can use in the trust policy the <code>RGWXXXX:root</code> formatting for the Principal. This gives access to all users in the devops account to assume the role. Then we could configure in the devops account to allow users from a specific IAM group to be able to assume the finance <code>devops-backup-reader</code> role.</p></blockquote><p>And the Permission Policy (what the role can do):</p><pre><code class="language-bash">$ cat &gt; role-permissions.json &lt;&lt;'EOF'
+{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [{
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Action&quot;: [&quot;s3:GetObject&quot;, &quot;s3:ListBucket&quot;],
+    &quot;Resource&quot;: [
+      &quot;arn:aws:s3:::finance-backups&quot;,
+      &quot;arn:aws:s3:::finance-backups/*&quot;
+    ]
+  }]
+}
+EOF
+</code></pre><p>This says: <strong>&quot;<em>This role can list &amp; read the finance-backups bucket.</em>&quot;</strong></p><p>Once we have the policy files created, we can go ahead and create the IAM role <code>devops-backup-reader</code> :</p><pre><code class="language-bash">$ aws --profile finance-admin s3 mb s3://finance-backups 
+$ aws iam create-role \
+  --profile finance-admin \
+  --role-name devops-backup-reader \
+  --assume-role-policy-document file://trust-policy.json
+
+$ aws iam put-role-policy \
+  --profile finance-admin \
+  --role-name devops-backup-reader \
+  --policy-name ReadBackups \
+  --policy-document file://role-permissions.json
+</code></pre><h4 id="2.-devops-user-accesses-the-finance-account-dataset">2. DevOps User Accesses the Finance Account Dataset <a class="link-anchor" href="#2.-devops-user-accesses-the-finance-account-dataset">¶</a></h4><p>Dave from the DevOps team assumes the role and gets temporary Finance credentials:</p><pre><code class="language-bash"># Assume Finance role
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; sts assume-role \
+  --profile dave-backup-ops \
+  --role-arn &quot;arn:aws:iam::RGW00893359550361292:role/devops-backup-reader&quot; \
+  --role-session-name david-devops-backup-finance \
+  --region default
+
+{
+    &quot;Credentials&quot;: {
+        &quot;AccessKeyId&quot;: &quot;ASIA****************&quot;,
+        &quot;SecretAccessKey&quot;: &quot;REDACTED&quot;,
+        &quot;SessionToken&quot;: &quot;REDACTED&quot;,
+        &quot;Expiration&quot;: &quot;2025-0X-15TXX:00:00Z&quot;
+    }
+}
+
+# Use temporary credentials
+$ export AWS_ACCESS_KEY_ID=ASIA****************
+$ export AWS_SECRET_ACCESS_KEY=REDACTED
+$ export AWS_SESSION_TOKEN=REDACTED
+
+# Access Finance backups (using Finance account credentials!)
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 ls s3://finance-backups/
+2025-01-14 02:00:00  daily-backup-2025-01-14.tar.gz
+
+$ aws --endpoint-url &quot;$RGW_ENDPOINT&quot; s3 cp s3://finance-backups/daily-backup-2025-01-14.tar.gz .
+download: s3://finance-backups/daily-backup-2025-01-14.tar.gz to ./daily-backup-2025-01-14.tar.gz
+</code></pre><h3 id="why-this-works-(and-why-no-bucket-policy-is-needed)">Why This Works (And Why No Bucket Policy Is Needed) <a class="link-anchor" href="#why-this-works-(and-why-no-bucket-policy-is-needed)">¶</a></h3><p>The role <code>devops-backup-reader</code> is in the Finance account (same account as the bucket). When Dave assumes this role, he receives temporary Finance account credentials. From the bucket's perspective, this is same-account access: only the role's policy is required; no bucket policy is needed.</p><p>The cross-account part: Only the AssumeRole action crosses accounts. The actual bucket access is the same account (role and bucket), both in Finance.</p><h3 id="security-benefits-of-this-approach">Security Benefits of This Approach <a class="link-anchor" href="#security-benefits-of-this-approach">¶</a></h3><ul><li><strong>Temporary credentials</strong>: Expire after 1 hour (configurable up to 12 hours)</li><li><strong>No shared secrets</strong>: DevOps never sees Finance's long-term keys</li><li><strong>Instant revocation</strong>: Finance deletes the role → all access stops immediately</li><li><strong>Audit trail</strong>: Logs show role name, session name, and requesting account</li><li><strong>Least privilege</strong>: Role has only read permissions, nothing more</li><li><strong>Better than ACLs</strong>: Centralized control, no object-level chaos</li></ul><h3 id="what-the-audit-logs-show">What the Audit Logs Show <a class="link-anchor" href="#what-the-audit-logs-show">¶</a></h3><p>The Ceph Object Gateway (RGW) audit logs capture the complete cross-account access pattern. Here's what you will see:</p><blockquote><p><strong>Note</strong>: Ensure RGW audit logging is enabled. See the <a href="https://docs.ceph.com/en/latest/radosgw/config-ref/#bucket-and-object-audit-logging">Ceph documentation on bucket and object audit logging</a> (OPS logs) for configuration details.</p></blockquote><p>Example audit log extract when DevOps assumes the Finance role:</p><pre><code class="language-json">$ tail -f /var/log/ceph/ops-log-ceph-client.rgw.default.ceph02.fvqogr.log | jq .
+{
+...
+  &quot;time&quot;: &quot;2025-01-04T17:34:07.711570Z&quot;,
+  &quot;time_local&quot;: &quot;2025-01-04T17:34:07.711570+0000&quot;,
+  &quot;remote_addr&quot;: &quot;10.251.0.21&quot;,
+  &quot;user&quot;: &quot;98b5e284-bd74-4a54-922e-cf1ee1d460c2&quot;,
+  &quot;operation&quot;: &quot;assume_role&quot;,
+  &quot;uri&quot;: &quot;POST / HTTP/1.1&quot;,
+  &quot;http_status&quot;: &quot;200&quot;,
+  &quot;bytes_sent&quot;: 999,
+  &quot;user_agent&quot;: &quot;aws-cli/1.38.34 md/Botocore#1.37.34 ua/2.1 os/linux#5.14.0-496.el9.x86_64 md/arch#x86_64 lang/python#3.9.19 md/pyimpl#CPython m/N cfg/retry-mode#legacy botocore/1.37.34&quot;,
+  &quot;referrer&quot;: &quot;&quot;,
+  &quot;trans_id&quot;: &quot;tx000001bb92497c13eba06-00695aa48f-494246-default&quot;,
+  &quot;access_key_id&quot;: &quot;MPUWRVKZFH9XXXXXXX&quot;,
+  &quot;temp_url&quot;: false
+}
+
+# We can then get any specific details on this user
+$ radosgw-admin user info --access-key=MPUWRVKZFH9XXXXXXX
+{
+    &quot;user_id&quot;: &quot;98b5e284-bd74-4a54-922e-cf1ee1d460c2&quot;,
+    &quot;display_name&quot;: &quot;dave-backup-ops&quot;,
+    &quot;email&quot;: &quot;&quot;,
+    &quot;suspended&quot;: 0,
+    &quot;max_buckets&quot;: 1000,
+    ...
+}
+</code></pre><p>Example audit log extract when Dave from the DevOps Account accesses the Finance bucket:</p><pre><code class="language-json">{
+  &quot;bucket&quot;: &quot;finance-backups&quot;,
+  &quot;object&quot;: &quot;daily-backup-2025-01-14.tar.gz&quot;,
+  &quot;time&quot;: &quot;2026-01-04T17:42:35.956711Z&quot;,
+  &quot;time_local&quot;: &quot;2026-01-04T17:42:35.956711+0000&quot;,
+  &quot;remote_addr&quot;: &quot;10.251.0.21&quot;,
+  &quot;object_owner&quot;: &quot;RGW00893359550361292&quot;,
+  &quot;user&quot;: &quot;98b5e284-bd74-4a54-922e-cf1ee1d460c2&quot;,
+  &quot;operation&quot;: &quot;get_obj&quot;,
+  &quot;uri&quot;: &quot;GET /finance-backups/daily-backup-2025-01-14.tar.gz HTTP/1.1&quot;,
+  &quot;http_status&quot;: &quot;200&quot;,
+  &quot;bytes_sent&quot;: 26,
+  &quot;bytes_received&quot;: 0,
+  &quot;object_size&quot;: 26,
+  &quot;total_time&quot;: 3,
+  &quot;user_agent&quot;: &quot;aws-cli/1.38.34 md/Botocore#1.37.34 ua/2.1 os/linux#5.14.0-496.el9.x86_64 md/arch#x86_64 lang/python#3.9.19 md/pyimpl#CPython m/N cfg/retry-mode#legacy botocore/1.37.34&quot;,
+  &quot;trans_id&quot;: &quot;tx00000a13eeac4ce551ce2-00695aa68b-494246-default&quot;,
+  &quot;authentication_type&quot;: &quot;STS&quot;,
+  &quot;sts_info&quot;: {
+    &quot;role_name&quot;: &quot;$devops-backup-reader&quot;,
+    &quot;role_session&quot;: &quot;david-devops-backup-finance&quot;
+  },
+  &quot;temp_url&quot;: false
+}
+</code></pre><p>What this tells you:</p><ul><li><strong>Who</strong>: Dave from DevOps (identified by role session name and the user uid)</li><li><strong>When</strong>: <code>2026-01-04T17:42:35.956711Z</code> (exact UTC timestamp)</li><li><strong>What</strong>: Downloaded <code>daily-backup-2025-01-14.tar.gz</code> from <code>finance-backups</code> bucket</li><li><strong>How</strong>: Via STS temporary credentials (<code>authentication_type: &quot;STS&quot;</code>)<ul><li>Assumed role: <code>devops-backup-reader</code></li><li>Session: <code>david-devops-backup-finance</code></li></ul></li><li><strong>From where</strong>: IP address <code>10.251.0.21</code></li><li><strong>Bucket owner</strong>: Finance account <code>RGW00893359550361292</code></li><li><strong>Status</strong>: Success (<code>http_status: 200</code>, 26 bytes transferred)</li></ul><p>Key security insights from this log:</p><ol><li><strong>Authentication type is explicitly marked as &quot;STS&quot;</strong> - You can easily filter all temporary credential access</li><li><strong>User who assumed the role is identified</strong> - (<code>98b5e284-bd74-4a54-922e-cf1ee1d460c2</code>)</li><li><strong>Role name is captured</strong> - You know which role was used (<code>devops-backup-reader</code>)</li><li><strong>Session name is captured</strong> - You can trace back to who initiated the session (Dave via <code>david-devops-backup-finance</code>)</li><li><strong>Object owner is logged</strong> - Confirms the bucket belongs to the Finance account, not the accessor</li><li><strong>Full HTTP details</strong> - User agent shows it was AWS CLI, complete with version</li></ol><blockquote><p>Compared to ACLs: With ACLs, you had no audit trail showing who from which account accessed what. The logs only showed &quot;someone accessed the object&quot; with no attribution to the originating account or session context.</p></blockquote><p>Comparison of IAM Roles Versus ACLs:</p><ul><li>ACLs: Decentralized, object-level, permanent, no audit trail of cross-account access</li><li>IAM Roles: Centralized, temporary, revocable, full audit trail with account attribution</li></ul><h2 id="understanding-policy-evaluation">Understanding Policy Evaluation <a class="link-anchor" href="#understanding-policy-evaluation">¶</a></h2><p>To use IAM effectively, you need to understand how permissions are evaluated.</p><h3 id="the-basic-rule">The Basic Rule <a class="link-anchor" href="#the-basic-rule">¶</a></h3><p>When a user requests access to an S3 resource, it follows the following workflow, taking into account that any <code>DENY</code> always wins over <code>ALLOW</code></p><p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1765908590713/83e2782a-fffe-4b8b-a03c-8017778ba232.png" alt=""></p><blockquote><p>Explicit <code>DENY</code> always wins, even if there are multiple <code>ALLOW</code> statements.</p></blockquote><h3 id="same-account-vs-cross-account">Same-Account vs Cross-Account <a class="link-anchor" href="#same-account-vs-cross-account">¶</a></h3><p><strong>Same-Account Access</strong> (user and bucket in the same account):</p><ul><li>Permission needed in either the bucket policy or the identity policy</li><li>One <code>ALLOW</code> is sufficient</li></ul><p><strong>Cross-Account Access</strong> (using role assumption):</p><ul><li>Permission needed for AssumeRole (on both sides - trust policy + identity policy)</li><li>Role's identity policy grants bucket access (same-account from bucket's perspective)</li><li>No bucket policy needed</li></ul><h2 id="the-security-roadmap%3A-enterprise-s3-security-coming-to-ceph">The Security Roadmap: Enterprise S3 Security Coming to Ceph <a class="link-anchor" href="#the-security-roadmap%3A-enterprise-s3-security-coming-to-ceph">¶</a></h2><p>The Ceph community is making a significant investment in enterprise S3 security. Several critical features are under active development to bring Ceph RGW to full feature parity with AWS S3's modern security model. Here's what's coming and why it matters.</p><h3 id="bucketownerenforced%3A-disabling-acls-(coming-in-a-tentacle-update)">BucketOwnerEnforced: Disabling ACLs (Coming in a Tentacle update) <a class="link-anchor" href="#bucketownerenforced%3A-disabling-acls-(coming-in-a-tentacle-update)">¶</a></h3><p>Status: Merged into Ceph v20.3.0 (Tentacle) (<a href="https://tracker.ceph.com/issues/63323">Issue #63323)</a></p><p>What it does: The <code>PutBucketOwnershipControls</code> API with <code>BucketOwnerEnforced</code> setting disables ACLs entirely and forces all objects to be owned by the bucket owner regardless of who uploaded them.</p><p>The problem it solves:</p><p>Before (with ACLs):</p><ul><li>Contractor uploads → contractor owns object → you, as the owner of the bucket, can't delete it</li><li>Developer sets ACL to public → bucket exposed to the internet</li><li>Objects disappear from inventory (owned by other accounts)</li></ul><p>After (BucketOwnerEnforced):</p><ul><li>Anyone uploads → you own the object → you control it completely</li><li>ACLs are ignored → impossible to make the bucket public accidentally via ACLs</li><li>All objects visible in your inventory reports</li></ul><p>How it will work:</p><pre><code class="language-bash"># Enable BucketOwnerEnforced on a bucket
+$ aws s3api put-bucket-ownership-controls \
+  --bucket company-data \
+  --ownership-controls 'Rules=[{ObjectOwnership=BucketOwnerEnforced}]'
+</code></pre><blockquote><p>Once enabled, any requests that include ACL headers (e.g., <code>--acl public-read</code>) will fail. Applications must be audited before enabling this feature on their buckets because if the application <strong>is using ACLs</strong> in their workflow the application requests using the ACL headers will start failing.</p></blockquote><h3 id="s3control-api-block-public-access-(coming-soon)">S3Control API Block Public Access (Coming Soon) <a class="link-anchor" href="#s3control-api-block-public-access-(coming-soon)">¶</a></h3><p>Status: Active development, <a href="https://github.com/ceph/ceph/pull/64293">PR #64293</a> under review</p><p>You've disabled ACLs in your Finance account. You've enabled Block Public Access. Your security team is confident the Finance buckets are locked down. Then someone in the Marketing account creates a new IAM user, spins up a bucket, and accidentally makes it public during a website deployment test. Your Finance settings didn't apply to Marketing's account because each account manages its own configuration independently.</p><p>This is where account-level controls become critical. While individual buckets can have their own Block Public Access settings, managing hundreds or thousands of buckets individually is error-prone. The S3Control API allows you to set account-level defaults that apply automatically to all buckets in that account, both existing and any new bucket created in the future.</p><p>Account-level enforcement prevents all public access:</p><pre><code class="language-bash"># Block all public access for entire account
+$ aws s3control put-public-access-block \
+  --account-id RGW11111111111111111 \
+  --public-access-block-configuration \
+    BlockPublicAcls=true,\
+    IgnorePublicAcls=true,\
+    BlockPublicPolicy=true,\
+    RestrictPublicBuckets=true
+</code></pre><blockquote><p>Once the account administrator sets this policy using S3Control, regular account users cannot override it. If a user later tries to disable Block Public Access on a specific bucket, make a bucket public via ACL, or add a public bucket policy, all those attempts will fail with &quot;Access Denied.&quot; The account-level setting takes precedence and cannot be bypassed by bucket-level operations. This creates a secure-by-default environment in which enabling public access using ACLs at the bucket-level is impossible.</p></blockquote><p>What each setting will do:</p><ul><li><strong>BlockPublicAcls</strong>: Prevents new public ACLs from being applied to buckets/objects</li><li><strong>IgnorePublicAcls</strong>: Ignores existing public ACLs (treats them as private)</li><li><strong>BlockPublicPolicy</strong>: Prevents bucket policies that grant public access</li><li><strong>RestrictPublicBuckets</strong>: Blocks public access even if policies exist</li></ul><blockquote><p>Account-level Block Public Access is enforced by the account administrator on regular users within that account, but the account administrator themselves can still modify or disable it. For enforcement from a <strong>higher authority</strong>, you need organization-level controls. See the next section on Organizational Units and SCPs, which enable Ceph/RGW cluster administrators to enforce immutable policies across all accounts.</p></blockquote><h3 id="organizational-units-and-service-control-policies-(future)">Organizational Units and Service Control Policies (Future) <a class="link-anchor" href="#organizational-units-and-service-control-policies-(future)">¶</a></h3><p><strong>Status</strong>: Roadmap item for future Ceph releases</p><p><strong>What it will do</strong>: Enable cluster administrators to enforce immutable security policies across multiple accounts—policies that even account administrators cannot disable or modify.</p><p><strong>The problem it solves</strong>: Account-level controls rely on administrator discipline. A determined (or compromised) account administrator can disable Block Public Access or re-enable ACLs. Organization-level controls provide actual enforcement from a higher authority that cannot be bypassed.</p><p><strong>Example use cases</strong> (when available):</p><ul><li><strong>Immutable Block Public Access</strong>: Cluster admin sets organization-wide &quot;no public buckets&quot; policy: account admins cannot disable it</li><li><strong>Required encryption</strong>: Force all objects to use encryption → accounts cannot opt out</li><li><strong>Cross-account access policies</strong>: Restrict which accounts can share data with external accounts</li><li><strong>Audit requirements</strong>: Enforce logging and monitoring so that accounts cannot be disabled</li></ul><p>This will provide enterprise multi-tenant governance that scales to thousands of accounts with immutable top-down policy enforcement.</p><h2 id="conclusion%3A-ceph's-enterprise-security-transformation">Conclusion: Ceph's Enterprise Security Transformation <a class="link-anchor" href="#conclusion%3A-ceph's-enterprise-security-transformation">¶</a></h2><p><img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1767550127997/3f2532cb-2bac-45d2-b99c-b69ff3f7fec6.png" alt=""></p><p>The migration from ACLs to IAM represents a fundamental shift in S3 security philosophy: from decentralized, object-level chaos to centralized, policy-based control.</p><p>Available today in Ceph Squid and later:</p><ol><li>IAM Accounts: Multi-tenant isolation with proper account boundaries</li><li>Cross-account role assumption: Secure data sharing with temporary credentials</li><li>Comprehensive audit logging: Full visibility into who accessed what, when, and how</li></ol><p>Coming soon (active development):</p><ol start="4"><li>BucketOwnerEnforced (Upcoming Tentacle update): Disable ACLs, fix ownership chaos</li><li>S3Control Block Public Access (Tentacle/Umbrella): Account-level public access prevention</li><li>Organizational Units &amp; SCPs (future): Immutable cluster-wide security policies</li></ol><p>The Ceph community is making a substantial investment to bring Ceph Object Gateway (RGW) to full feature parity with AWS S3's modern security model. The roadmap is clear, and the commitment is real.</p><p>The modern S3 security model is simpler, safer, and more auditable than ACLs ever were. ACLs created invisible access paths that security teams couldn't see. IAM policies are explicit, centralized, and visible in one place.</p><p><strong>Disable ACLs today</strong>. Your future self will thank you.</p><p>Daniel would like to thank IBM for supporting the community with his time to create these posts.</p></div></div><aside><hr class="hr lg:hidden my-16"><div class="grid md-to-lg:grid--cols-2 to-md:grid--gap-14 lg:grid--gap-0"><div><h2 class="h5">Share this article</h2><div class="social-shares"><a class="social-shares__twitter" href="https://twitter.com/share?url=https://ceph.io/en/news/blog/2026/mastering-iam/&text=Mastering IAM in Ceph: Multi-Tenancy, Access Control, and Why ACLs Must Die&via=ceph" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="transparent" fill-rule="evenodd" stroke-width="2"><circle cx="23.925" cy="23.925" r="21.75" stroke="#eb1414" stroke-linecap="square"/><path fill="#fff" stroke="#0a0c38" stroke-linejoin="round" d="M36 16.575c-.9.375-1.837.675-2.813.788a4.958 4.958 0 002.175-2.738 9.771 9.771 0 01-3.112 1.2c-.938-.975-2.212-1.575-3.637-1.575a4.905 4.905 0 00-4.913 4.913c0 .375.038.75.113 1.125-4.088-.188-7.726-2.175-10.125-5.138a4.986 4.986 0 00-.676 2.475c0 1.725.863 3.225 2.175 4.087a5.231 5.231 0 01-2.212-.6v.076c0 2.4 1.688 4.387 3.938 4.837a5.043 5.043 0 01-1.313.188c-.3 0-.637-.038-.938-.076a4.935 4.935 0 004.613 3.413 9.962 9.962 0 01-6.112 2.1c-.413 0-.788-.037-1.163-.075 2.175 1.35 4.762 2.175 7.538 2.175 9.075 0 14.024-7.5 14.024-14.025v-.638A10.355 10.355 0 0036 16.575z"/></g></svg> <span class="visually-hidden">Twitter</span> </a><a class="social-shares__facebook" href="https://www.facebook.com/sharer.php?u=https://ceph.io/en/news/blog/2026/mastering-iam/" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="transparent" fill-rule="evenodd" stroke-width="2"><circle cx="23.925" cy="23.925" r="21.75" stroke="#eb1414" stroke-linecap="square"/><path fill="#fff" stroke="#0a0c38" stroke-linejoin="round" d="M21.043 36.75V25.7H17.25v-5.1h3.793v-3.562c0-3.88 2.456-5.788 5.917-5.788 1.658 0 3.082.123 3.498.179v4.054l-2.4.001c-1.883 0-2.308.894-2.308 2.207V20.6h5.1l-1.7 5.1h-3.4v11.05h-4.707z"/></g></svg> <span class="visually-hidden">Facebook</span></a></div><hr class="hidden lg:block hr"></div><div><h2 id="tags-desc" class="h5">Read more articles like this</h2><ul class="list-none p-0" aria-describedby="tags-desc"><li class="mb-3"><a class="button button--pill" href="/en/news/blog/category/ceph/">ceph</a></li><li class="mb-3"><a class="button button--pill" href="/en/news/blog/category/rgw/">rgw</a></li><li><a class="button button--pill" href="/en/news/blog/category/s3/">s3</a></li></ul></div></div></aside></div></section></div></main><footer class="site-footer"><div class="wrapper"><nav aria-label="site"><ul class="site-footer__site"><li><a href="/en/discover/">Discover</a><ul><li><a href="/en/discover/benefits/">Benefits</a></li><li><a href="/en/discover/technology/">Technology</a></li><li><a href="/en/discover/vision/">Vision</a></li><li><a href="/en/discover/use-cases/">Use cases</a></li><li><a href="/en/discover/case-studies/">Case studies</a></li></ul></li><li><a href="/en/users/">Users</a><ul><li><a href="/en/users/getting-started/">Getting started</a></li><li><a href="/en/users/documentation/">Documentation</a></li><li><a href="/en/users/survey/">Survey</a></li></ul></li><li><a href="/en/developers/">Developers</a><ul><li><a href="/en/developers/code/">Code</a></li><li><a href="/en/developers/contribute/">Contribute</a></li><li><a href="/en/developers/roadmap/">Roadmap</a></li><li><a href="/en/developers/google-summer-of-code/">Google Summer of Code</a></li></ul></li><li><a href="/en/community/">Community</a><ul><li><a href="/en/community/cq/">Ceph Quarterly</a></li><li><a href="/en/community/events/">Events</a></li><li><a href="/en/community/tech-talks/">Tech talks</a></li><li><a href="/en/community/meetups/">Virtual Meetings &amp; Meetups</a></li><li><a href="/en/community/connect/">Connect</a></li><li><a href="/en/community/team/">Team</a></li><li><a href="/en/community/ambassadors/">Ambassadors</a></li><li><a href="/en/community/jobs/">Jobs</a></li></ul></li><li><a href="/en/news/">News</a><ul><li><a href="/en/news/blog/" aria-current="page">Ceph Blog</a></li><li><a href="/en/news/publications/">Publications</a></li><li><a href="/en/news/contribute/">Contribute Content</a></li><li><a href="/en/news/crimson/">Crimson Project</a></li></ul></li><li><a href="/en/foundation/">Foundation</a><ul><li><a href="/en/foundation/about/">About the foundation</a></li><li><a href="/en/foundation/members/">Foundation members</a></li><li><a href="/en/foundation/member-benefits/">Member Tiers and Benefits</a></li><li><a href="/en/foundation/join/">Become a member</a></li></ul></li></ul></nav><svg class="site-footer__ceph" xmlns="http://www.w3.org/2000/svg" width="154" height="42" viewBox="0 0 154 42" aria-hidden="true" focusable="false"><g fill="#f0424d"><path d="M35 38c-1.4-.8-2.3-1.7-2.5-2.7s.2-2 1.3-3.3A16.2 16.2 0 0021.6 5.2h-.1A16.2 16.2 0 009.2 32c1.1 1.3 1.5 2.3 1.4 3.2S9.5 37.2 8 38a22.8 22.8 0 01-5.7-7.2A21.3 21.3 0 010 21.4 21.4 21.4 0 0121.5 0h.1A21.4 21.4 0 0143 21.4a21.6 21.6 0 01-.6 4.9 21 21 0 01-1.6 4.5 22.7 22.7 0 01-5.7 7.2"/><path d="M27.2 42a8 8 0 01-2-2 8.7 8.7 0 01-1.6-5.3 11.8 11.8 0 01.9-4.2 12 12 0 012.3-3.7l.2-.2a10.3 10.3 0 001-1.4 7 7 0 001-2 7.5 7.5 0 00-6.3-9.2 7.3 7.3 0 00-1.1 0h-.1a7.4 7.4 0 00-4 1 7.5 7.5 0 00-2.2 2 7.5 7.5 0 00-1.2 6.2 7.2 7.2 0 00.8 2 9.7 9.7 0 001.1 1.4l.2.3a11.9 11.9 0 012.3 3.6 11.8 11.8 0 011 4.2 8.8 8.8 0 01-1.8 5.4 8 8 0 01-1.9 1.9l-1.2-.4A21.3 21.3 0 0111 40a6 6 0 003.2-5.3 6.4 6.4 0 00-1.7-4.2l-.3-.4-.9-1a12.8 12.8 0 01-.2-15 13 13 0 013.7-3.5 12.8 12.8 0 015-1.8 13.3 13.3 0 011.7-.2h.2a13.4 13.4 0 011.8.2 12.8 12.8 0 014.9 1.8A13 13 0 0132 14a12.7 12.7 0 01-.2 15l-.9 1-.3.4a6.5 6.5 0 00-1.7 4.3 6 6 0 003.1 5.4 21.4 21.4 0 01-3.6 1.5l-1.2.4"/><path d="M21.5 25.8a4.2 4.2 0 114.2-4.2 4.2 4.2 0 01-4.2 4.2"/></g><g fill="#e7e9e8"><path d="M75.6 26.4c0 5.5-.5 7-1.8 8.4-.8.8-2 1.3-4.3 1.3h-8.2c-2.6 0-4.2-.4-5.3-1.5-1.7-1.8-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1-1 2.7-1.5 5.3-1.5h8c2.5 0 3.6.5 4.4 1.3 1.3 1.3 1.8 3 1.8 8h-5c-.1-3.5-.3-4-.6-4.3s-.6-.5-1.8-.5H62c-1.5 0-2 .1-2.3.5-.5.5-.7 1.5-.7 8.3s.2 7.7.7 8.2c.4.4.8.5 2.3.5h6.2c1.1 0 1.6 0 2-.4s.5-1.4.5-4.7h5M84.3 20.4h12.2c0-4.5-.3-5.5-.8-6-.3-.3-.7-.5-2.3-.5h-6c-1.6 0-2 .2-2.4.6s-.6 1.3-.7 5.9zm0 4c0 5.3.4 6.3.8 6.7s.7.5 2.2.5h7c1 0 1.4-.2 1.7-.5s.4-1 .5-3.3h5c0 4.2-.4 5.6-1.8 7-.8.8-2 1.3-4.3 1.3h-8.7c-2.6 0-4.2-.4-5.3-1.5-1.7-1.7-2.2-3.8-2.2-11.8s.5-10 2.2-11.8c1.1-1 2.7-1.5 5.3-1.5H94c2.6 0 4.3.5 5.3 1.4 1.7 1.8 2.2 3.8 2.2 11.6V24c0 .4-.1.6-.6.6H84.3M121.6 31c-.4.4-1 .6-2.7.6H115a10.1 10.1 0 01-4.8-1.5l-.3-.1V15.5a10.7 10.7 0 015-1.5h4c1.6 0 2.2.2 2.7.6.7.8 1 2.2 1 8.2s-.2 7.4-1 8.1zm-1.5-21.6h-3.6c-2.2 0-3.3.5-6.6 3.3V9.4h-5.2V42h5.2v-9c3.3 2.7 4.4 3.2 6.6 3.2h3.6c2.9 0 4.3-.5 5.5-1.6 1.4-1.5 2-3.5 2-11.8s-.6-10.3-2-11.8c-1.2-1.1-2.6-1.6-5.5-1.6M152.4 11c-1-1-2.3-1.6-4.6-1.6h-4.2c-2.2 0-3.3.5-6.7 3.3V2.5a18.8 18.8 0 00-5-2v35.6h5V15.5l1.1-.5a9.1 9.1 0 014-1h3.4c1.7 0 2.2.2 2.8.7a3.4 3.4 0 01.6 2.6V36h5.2V17c0-3.7-.6-5-1.6-6"/></g></svg><p class="color-white p text-xs">&copy; 2026 All rights reserved.</p><nav aria-label="support"><ul class="site-footer__support"><li><a href="/en/code-of-conduct/">Code of conduct</a></li><li><a href="/en/terms/">Terms of use</a></li><li><a href="/en/privacy/">Privacy policy</a></li><li><a href="/en/trademarks/">Trademarks</a></li><li><a href="/en/logos/">Logo Usage</a></li><li><a href="/en/security/">Security</a></li></ul><ul class="site-footer__social"><li><a class="site-footer__twitter" href="https://twitter.com/ceph" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#d3dde7" aria-hidden="true" focusable="false"><path d="M24.857 4.125c-.964.429-1.982.696-3.053.857 1.071-.643 1.928-1.66 2.303-2.893a11.61 11.61 0 01-3.375 1.286 5.34 5.34 0 00-3.857-1.66 5.259 5.259 0 00-5.25 5.25c0 .428.054.803.16 1.178C7.447 7.929 3.536 5.839.912 2.625.482 3.429.214 4.285.214 5.25c0 1.821.911 3.429 2.357 4.393A6.199 6.199 0 01.161 9v.054a5.293 5.293 0 004.232 5.196A5.84 5.84 0 013 14.41c-.321 0-.696-.053-1.018-.106.697 2.089 2.625 3.642 4.929 3.642-1.822 1.393-4.072 2.25-6.536 2.25-.429 0-.857 0-1.232-.053a14.907 14.907 0 008.09 2.357c9.696 0 15-8.036 15-15v-.696a9.62 9.62 0 002.624-2.679z"/></svg> <span class="visually-hidden">Twitter</span></a></li><li><a class="site-footer__youtube" href="https://www.youtube.com/channel/UCno-Fry25FJ7B4RycCxOtfw" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#d3dde7" aria-hidden="true" focusable="false"><path id="a" d="M23.75 7.079s-.25-1.65-.95-2.4c-.9-.95-1.95-.95-2.4-1-3.35-.25-8.4-.25-8.4-.25s-5.05 0-8.4.25c-.45.05-1.5.05-2.4 1-.7.75-.95 2.4-.95 2.4S0 9.029 0 10.979v1.8c0 1.95.25 3.9.25 3.9s.25 1.65.95 2.4c.9.95 2.1.95 2.65 1.05 1.9.2 8.15.25 8.15.25s5.05 0 8.4-.25c.45-.05 1.5-.05 2.4-1 .7-.75.95-2.4.95-2.4s.25-1.95.25-3.9v-1.8c0-2-.25-3.95-.25-3.95zm-14.25 7.9v-6.75l6.5 3.4-6.5 3.35z"/></svg> <span class="visually-hidden">YouTube</span></a></li><li><a class="site-footer__facebook" href="https://www.facebook.com/cephstorage" rel="noreferrer noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#d3dde7" aria-hidden="true" focusable="false"><path d="M24 12.072C23.999 5.689 19 .423 12.626.09 6.251-.243.732 4.473.066 10.822-.601 17.17 3.82 22.929 10.125 23.926v-8.385H7.078v-3.469h3.047V9.428c0-3.007 1.792-4.669 4.532-4.669.9.013 1.798.091 2.687.235v2.953H15.83a1.735 1.735 0 00-1.955 1.875v2.25h3.328l-.532 3.469h-2.797v8.385A12 12 0 0024 12.072z"/></svg> <span class="visually-hidden">Facebook</span></a></li></ul></nav></div><script type="text/javascript">!function(n,t,e,i,a,r){n.twq||((i=n.twq=function(){i.exe?i.exe.apply(i,arguments):i.queue.push(arguments)}).version="1.1",i.queue=[],(a=t.createElement(e)).async=!0,a.src="//static.ads-twitter.com/uwt.js",(r=t.getElementsByTagName(e)[0]).parentNode.insertBefore(a,r))}(window,document,"script"),twq("init","o6l7s"),twq("track","PageView"),_linkedin_partner_id="3438284",window._linkedin_data_partner_ids=window._linkedin_data_partner_ids||[],window._linkedin_data_partner_ids.push(_linkedin_partner_id),function(){window.lintrk||(window.lintrk=function(n,t){window.lintrk.q.push([n,t])},window.lintrk.q=[]);var n=document.getElementsByTagName("script")[0],t=document.createElement("script");t.type="text/javascript",t.async=!0,t.src="https://snap.licdn.com/li.lms-analytics/insight.min.js",n.parentNode.insertBefore(t,n)}()</script><noscript><img height="1" width="1" style="display:none" alt="" src="https://px.ads.linkedin.com/collect/?pid=3438284&fmt=gif"></noscript></footer><script type="module" src="/js/bundle-main.mjs"></script><script nomodule src="/js/bundle-main.js"></script></body></html>

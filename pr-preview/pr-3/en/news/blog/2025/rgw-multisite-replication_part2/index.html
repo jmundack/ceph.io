@@ -15,6 +15,7 @@ Added label rgwsync to host ceph-node-01.cephlab.com
 </code></pre><p>Once the nodes have been labeled, we enable the RGW manager module and bootstrap the RGW multisite configuration. When bootstrapping the multisite config, the <code>rgw</code> manager module will take care of the following steps:</p><ul><li>Create the realm, zonegroup, and zone and apply the period</li><li>Specific RGW RADOS pools with the name of the zone are created</li><li>Create an RGW multisite replication sync user</li><li>Configure the realm, zonegroup, and zone for each RGW service</li><li>Create the RGW services using the cephadm orchestrator</li></ul><pre><code>[root@ceph-node-00 ~]# ceph mgr module enable rgw
 [root@ceph-node-00 ~]# ceph rgw realm bootstrap -i rgw.spec
 Realm(s) created correctly. Please use 'ceph rgw realm tokens' to get the token.
+</code></pre><p>Note: beginning with the Tentacle release, the first realm created is not automatically the default, so with these releases one will need to now run</p><pre><code>radosgw-admin realm default --rgw-realm=$realm
 </code></pre><p>Let’s check the realm:</p><pre><code>[root@ceph-node-00 ~]# radosgw-admin realm list
 {
     &quot;default_info&quot;: &quot;d85b6eef-2285-4072-8407-35e2ea7a17a2&quot;,
@@ -148,8 +149,8 @@ upload: ../etc/hosts to s3://firstbucket/hosts
     &quot;user1&quot;,
     &quot;sysuser-multisite&quot;
 ]
-[root@ceph-node-04 ~]# radosgw-admin bucket stats --bucket testbucket | jq .bucket
-&quot;testbucket&quot;
+[root@ceph-node-04 ~]# radosgw-admin bucket stats --bucket firstbucket | jq .bucket
+&quot;firstbucket&quot;
 </code></pre><p>To check replication status, we can use the <code>radosgw-admin sync status</code> command. For example:</p><pre><code>[root@ceph-node-00 ~]# radosgw-admin sync status
           realm beeea955-8341-41cc-a046-46de2d5ddeb9 (multisite)
       zonegroup 2761ad42-fd71-4170-87c6-74c20dd1e334 (multizg)
