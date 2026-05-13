@@ -3,46 +3,47 @@ name: PR Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [ "main" ]
+    branches: ["main"]
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: write
-  pages: write
-  id-token: write
-  pull-requests: write 
+  pull-requests: write
 
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  preview:
     runs-on: ubuntu-latest
 
+    # This deploys only PRs opened from the same repo, not forks.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '23.7.0'
+          node-version: "22"
+          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: Build project
-        run: npm run build
+      - run: npm run build
 
-      # Example deployment: GitHub Pages with a unique preview URL per PR
-      - name: Deploy preview (e.g., to GitHub Pages)
+      - name: Deploy PR preview
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           destination_dir: pr-preview/pr-${{ github.event.pull_request.number }}
-      # Comment PR with preview link
-      - name: Comment PR with Preview URL
+          keep_files: true
+
+      - name: Comment preview link
         uses: thollander/actions-comment-pull-request@v3
         with:
+          comment-tag: pr-preview
           message: |
-            :rocket: Preview deployed!
-            :link: [View Preview](https://your-user.github.io/your-repo/pr-preview/pr-${{ github.event.pull_request.number }})
+            🚀 Preview deployed:
+            https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.pull_request.number }}/
