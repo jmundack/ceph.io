@@ -52,7 +52,7 @@
     {%- endif -%}
 
     {# Stylesheet #}
-    <link rel="stylesheet" href="/css/main.css"/>
+    <link rel="stylesheet" href="{{ '/css/main.css' | url(site.pathPrefix) }}"/>
 
     {# async Google Fonts #}
     <link rel="stylesheet" media="print" onload="this.onload=null;this.removeAttribute('media');" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
@@ -63,24 +63,24 @@
     </noscript>
 
     {# Favicons #}
-    <link rel="icon" type="image/png" href="/assets/favicons/favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="/assets/favicons/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/assets/favicons/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="/assets/favicons/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="{{ '/assets/favicons/favicon-16x16.png' | url(site.pathPrefix) }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ '/assets/favicons/favicon-32x32.png' | url(site.pathPrefix) }}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ '/assets/favicons/favicon-96x96.png' | url(site.pathPrefix) }}" sizes="96x96">
+    <link rel="icon" type="image/png" href="{{ '/assets/favicons/android-chrome-192x192.png' | url(site.pathPrefix) }}" sizes="192x192">
 
-    <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicons/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicons/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicons/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicons/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicons/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicons/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicons/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicons/apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ '/assets/favicons/apple-touch-icon-57x57.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{ '/assets/favicons/apple-touch-icon-60x60.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ '/assets/favicons/apple-touch-icon-72x72.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ '/assets/favicons/apple-touch-icon-76x76.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ '/assets/favicons/apple-touch-icon-114x114.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ '/assets/favicons/apple-touch-icon-120x120.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ '/assets/favicons/apple-touch-icon-144x144.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ '/assets/favicons/apple-touch-icon-152x152.png' | url(site.pathPrefix) }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/favicons/apple-touch-icon-180x180.png' | url(site.pathPrefix) }}">
 
-    <link rel="mask-icon" href="/assets/favicons/safari-pinned-tab.svg" color="#f0424d">
+    <link rel="mask-icon" href="{{ '/assets/favicons/safari-pinned-tab.svg' | url(site.pathPrefix) }}" color="#f0424d">
 
-    <link rel="manifest" href="/assets/favicons/manifest.json">
+    <link rel="manifest" href="{{ '/assets/favicons/manifest.json' | url(site.pathPrefix) }}">
 
     {# Robots #}
     {% if not build.isProduction %}
@@ -130,7 +130,7 @@
     </main>
 
     {% include 'components/site-footer.njk' %}
-    <script type="module" src="/js/bundle-main.mjs"></script>
-    <script nomodule src="/js/bundle-main.js"></script>
+    <script type="module" src="{{ '/js/bundle-main.mjs' | url(site.pathPrefix) }}"></script>
+    <script nomodule src="{{ '/js/bundle-main.js' | url(site.pathPrefix) }}"></script>
   </body>
 </html>
