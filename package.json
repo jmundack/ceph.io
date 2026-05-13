@@ -13,6 +13,7 @@
     "build": "npm-run-all clean --parallel site css js assets",
     "build:development": "cross-env NODE_ENV=development npm run build",
     "build:production": "cross-env NODE_ENV=production npm run build",
+    "build:preview": "cross-env NODE_ENV=production npm run build",
     "debug": "cross-env DEBUG=* npx eleventy",
     "prettier": "prettier \"**/*.+(js|json|css|md|html)\"",
     "format": "npm run prettier -- --write",

@@ -1,0 +1,97 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: ["main"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+
+    # This deploys only PRs opened from the same repo, not forks.
+    # Skip if PR is being closed
+    if: |
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build with path prefix
+        env:
+          # PATH_PREFIX ensures all asset paths (CSS, JS, images) and internal links
+          # are prefixed with the PR-specific path for proper loading in subdirectories
+          PATH_PREFIX: /pr-preview/pr-${{ github.event.pull_request.number }}
+        run: npm run build:preview
+
+      - name: Deploy PR preview
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: pr-preview/pr-${{ github.event.pull_request.number }}
+          keep_files: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Comment preview link
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: pr-preview
+          message: |
+            🚀 **Preview deployed successfully!**
+
+            **Preview URL:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.pull_request.number }}/en/
+
+            The preview will update automatically when you push new commits to this PR.
+
+            ---
+            <sub>Build for commit ${{ github.event.pull_request.head.sha }}</sub>
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove preview directory
+        run: |
+          PR_DIR="pr-preview/pr-${{ github.event.pull_request.number }}"
+          if [ -d "$PR_DIR" ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            git rm -rf "$PR_DIR"
+            git commit -m "Remove preview for PR #${{ github.event.pull_request.number }}"
+            git push origin gh-pages
+            echo "Preview directory removed"
+          else
+            echo "Preview directory not found, nothing to clean up"
+          fi
+
+      - name: Comment about cleanup
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: pr-preview
+          message: |
+            🧹 **Preview deployment cleaned up**
+
+            The preview has been removed since this PR was closed.
