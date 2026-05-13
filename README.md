@@ -48,6 +48,28 @@ Files are output to the `dist` directory, which is excluded from version control
 
 :warning: **Important to note:** The `npm run build` action is intended for the build server and production environment only. Building the site isn't necessary during development. In the future when there are multiple languages running a build will also initiate [`scripts/prebuild.js`](https://github.com/ceph/ceph.io/blob/develop/scripts/images.js), which is responsible for duplicating any missing pages from the default language site (`en`) to all supporting language sites (as determined by the `_data/locales`). This additional script ensures that we have content parity across all sites in production, falling back to English where content is not available. The files generated across the supporting language site directories should not be committed to version control.
 
+## Build for PR previews
+
+When deploying PR previews to subdirectories (e.g., GitHub Pages), you can use the `PATH_PREFIX` environment variable to ensure all asset paths are relative to the deployment path:
+
+```bash
+$ PATH_PREFIX=/pr-preview/pr-123 npm run build:preview
+```
+
+This will prefix all CSS, JS, image, and internal link paths with the specified prefix. For example:
+- `/css/main.css` becomes `/pr-preview/pr-123/css/main.css`
+- `/assets/images/logo.png` becomes `/pr-preview/pr-123/assets/images/logo.png`
+- `/en/blog/` becomes `/pr-preview/pr-123/en/blog/`
+
+### GitHub Actions
+
+The repository includes a complete GitHub Actions workflow at [`.github/workflows/pr-preview.yml`](.github/workflows/pr-preview.yml) that automatically builds and deploys PR previews.
+
+The key parts are:
+1. Set the `PATH_PREFIX` environment variable based on the PR number
+2. Run `npm run build:preview` to build with the path prefix
+3. Deploy the `dist/` directory to your preview environment
+
 ## Debugging
 
 ```
