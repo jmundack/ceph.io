@@ -46,6 +46,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter('removeTags', require(`${filtersDir}/removeTags.js`));
   eleventyConfig.addFilter('startsWith', require(`${filtersDir}/startsWith.js`));
   eleventyConfig.addFilter('truncate', require(`${filtersDir}/truncate.js`));
+  eleventyConfig.addFilter('url', require(`${filtersDir}/url.js`));
 
   // Layout aliases — TBC if this is bringing enough benefit
   eleventyConfig.addLayoutAlias('base', 'layouts/_base.njk');
@@ -83,6 +84,7 @@ module.exports = function (eleventyConfig) {
   // Transforms
   const transformsDir = `./src/_11ty/transforms`;
   eleventyConfig.addTransform('htmlmin', require(`${transformsDir}/html-minifier.js`));
+  eleventyConfig.addTransform('pathPrefix', require(`${transformsDir}/pathPrefix.js`));
 
   // Passthrough copy
   eleventyConfig.addPassthroughCopy('./src/assets/**/*.json');
@@ -159,5 +161,6 @@ module.exports = function (eleventyConfig) {
       input: 'src',
       output: 'dist',
     },
+    pathPrefix: process.env.PATH_PREFIX || '/',
   };
 };
